@@ -1,6 +1,6 @@
-﻿namespace DashBoard.Models
+﻿namespace DashBoard.Models.Glpi
 {
-    public class User
+    public class Status
     {
         public int Id { get; set; }
         public string Name { get; set; }
