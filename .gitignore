@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # GLPI OAuth refresh token store (secret, machine-local)
 DashBoard/App_Data/
+
+Dashboard/appsettings.Development.json
+Dashboard/appsettings.json
