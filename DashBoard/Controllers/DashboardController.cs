@@ -15,9 +15,20 @@ namespace DashBoard.Controllers
         [HttpGet("tickets")]
         public async Task<IActionResult> GetTickets()
         {
-            var tickets = await _glpiService.GetTicketsAsync();
+            try
+            {
+                var tickets = await _glpiService.GetTicketsAsync();
 
-            return Ok(tickets);
+                return Ok(tickets);
+            }
+            catch (GlpiNotAuthorizedException ex)
+            {
+                return Unauthorized(new
+                {
+                    message = ex.Message,
+                    authorizeUrl = "/auth/glpi/login"
+                });
+            }
         }
     }
 }
