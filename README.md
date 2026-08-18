@@ -41,19 +41,23 @@ pointing at the authorize endpoint instead of throwing a raw exception:
      `https://localhost:<port>/auth/glpi/callback` (must match `GLPI:RedirectUri`
      exactly, including scheme, host, and port).
 
-2. **Configure secrets** — set these via `dotnet user-secrets` (recommended) or
-   `appsettings.Development.json`. Don't put these in `appsettings.json`, which
-   is committed:
-   - `GLPI:ClientId`
-   - `GLPI:ClientSecret`
-   - `GLPI:RedirectUri` — must match the redirect URI registered in GLPI, e.g.
-     `https://localhost:<port>/auth/glpi/callback`
+2. **Configure secrets.** `appsettings.json` and `appsettings.Development.json`
+   already have placeholder `GLPI:ClientId` / `GLPI:ClientSecret` /
+   `GLPI:RedirectUri` entries so the required shape is visible — but they're
+   committed to git, so **never put real values directly in those files**.
+   Fill them in via `dotnet user-secrets` instead, which stores them outside
+   the repo:
 
    ```
-   dotnet user-secrets set "GLPI:ClientId" "..."
-   dotnet user-secrets set "GLPI:ClientSecret" "..."
-   dotnet user-secrets set "GLPI:RedirectUri" "https://localhost:<port>/auth/glpi/callback"
+   dotnet user-secrets set "GLPI:ClientId" "..." --project DashBoard
+   dotnet user-secrets set "GLPI:ClientSecret" "..." --project DashBoard
    ```
+
+   `GLPI:RedirectUri` already defaults to
+   `https://localhost:7002/auth/glpi/callback` in `appsettings.Development.json`
+   (matching the `https` launch profile's port). Register that same URL as the
+   allowed redirect URI on the GLPI OAuth client. If you run on a different
+   port, override `GLPI:RedirectUri` via user-secrets too.
 
    `GLPI:BaseUrl`, `GLPI:ApiBaseUrl`, `GLPI:AuthorizationUrl`, and
    `GLPI:TokenUrl` are already set in `appsettings.json`.
