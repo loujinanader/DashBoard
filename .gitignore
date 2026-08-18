@@ -366,3 +366,4 @@ FodyWeavers.xsd
 DashBoard/App_Data/
 
 Dashboard/appsettings.*
+DashBoard/appsettings.Development.json
