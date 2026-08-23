@@ -58,7 +58,7 @@ namespace DashBoard.Service
             return slashIndex >= 0 && int.TryParse(value.AsSpan(slashIndex + 1), out var total)
                 ? total
                 : null;
-        }.
+        }
         private async Task<string> GetAccessTokenAsync()
         {
             if (_cachedAccessToken is not null && DateTimeOffset.UtcNow < _cachedAccessTokenExpiresAt)
