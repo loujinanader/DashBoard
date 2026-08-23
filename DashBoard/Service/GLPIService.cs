@@ -71,7 +71,9 @@ namespace DashBoard.Service
             {
                 ["grant_type"] = "authorization_code",
                 ["code"] = code,
-                ["redirect_uri"] = redirectUri
+                ["redirect_uri"] = redirectUri,
+                ["client_id"] = clientId,
+                ["client_secret"] = clientSecret
             });
 
             var response = await _httpClient.SendAsync(request);

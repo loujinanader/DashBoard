@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DashBoard.Controllers
 {
+    [ApiController]
     [Route("auth/glpi")]
     public class GlpiAuthController : ControllerBase
     {
@@ -17,7 +18,9 @@ namespace DashBoard.Controllers
         [HttpGet("login")]
         public IActionResult Login()
         {
-            return Redirect(_glpiService.GetAuthorizationUrl());
+            var url = _glpiService.GetAuthorizationUrl();
+
+            return Redirect(url);
         }
 
         // GLPI redirects here (must match GLPI:RedirectUri) with ?code=...

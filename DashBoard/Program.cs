@@ -12,6 +12,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddHttpClient<IGLPIService, GLPIService>();
+builder.Services.AddHttpClient<GLPIService>();
+builder.Services.AddScoped<IGLPIService>(sp =>
+    sp.GetRequiredService<GLPIService>());
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
