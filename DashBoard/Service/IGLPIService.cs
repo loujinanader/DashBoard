@@ -1,5 +1,4 @@
 using DashBoard.Models.Glpi;
-
 namespace DashBoard.Service
 {
     public interface IGLPIService

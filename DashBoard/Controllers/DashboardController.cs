@@ -66,12 +66,10 @@ namespace DashBoard.Controllers
         public async Task<IActionResult> GetTotalTicketsByUserId(int userId)
         {
             var tickets = await _glpiService.GetTicketsAsync();
-
             var userTickets = tickets
                 .Where(t => t.Team != null &&
                             t.Team.Any(member => member.Id == userId))
                 .ToList();
-
             var result = new
             {
                 total = userTickets.Count,
@@ -81,7 +79,6 @@ namespace DashBoard.Controllers
                 solved = userTickets.Count(t => t.Status?.Id == 5),
                 closed = userTickets.Count(t => t.Status?.Id == 6)
             };
-
             return Ok(result);
         }
     }
