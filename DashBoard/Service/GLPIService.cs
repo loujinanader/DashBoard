@@ -1,7 +1,6 @@
 using DashBoard.Models.Glpi;
 using System.Net.Http.Headers;
 using System.Text.Json;
-
 namespace DashBoard.Service
 {
     public class GLPIService : IGLPIService
@@ -10,13 +9,10 @@ namespace DashBoard.Service
         // requests hitting an expired cached token doesn't fire off duplicate
         // password-grant token requests.
         private static readonly SemaphoreSlim _tokenLock = new(1, 1);
-
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-
         private string? _cachedAccessToken;
         private DateTimeOffset _cachedAccessTokenExpiresAt = DateTimeOffset.MinValue;
-
         public GLPIService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;

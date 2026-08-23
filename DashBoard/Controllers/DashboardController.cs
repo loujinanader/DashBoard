@@ -1,21 +1,15 @@
 using DashBoard.Models.Dashboard.DashBoard.Models;
-using DashBoard.Models.Glpi;
 using DashBoard.Service;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-
 namespace DashBoard.Controllers
 {
-  
     public class DashboardController : ControllerBase
     {
         private readonly IGLPIService _glpiService;
-
         public DashboardController(IGLPIService glpiService)
         {
             _glpiService = glpiService;
         }
-
         [HttpGet("tickets")]
         public async Task<IActionResult> GetTickets()
         {
@@ -53,12 +47,10 @@ namespace DashBoard.Controllers
         public async Task<IActionResult> GetTicketsByUserId(int userId)
         {
             var tickets = await _glpiService.GetTicketsAsync();
-
             var userTickets = tickets
                 .Where(t => t.Team != null &&
                             t.Team.Any(member => member.Id == userId))
                 .ToList();
-
             return Ok(userTickets);
         }
     }
