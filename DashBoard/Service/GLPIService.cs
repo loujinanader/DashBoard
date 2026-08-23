@@ -18,7 +18,6 @@ namespace DashBoard.Service
             _httpClient = httpClient;
             _configuration = configuration;
         }
-
         // GLPI paginates Assistance/Ticket at 100 items per page by default (a plain
         // GET returns "206 Partial Content" with a "Content-Range: start-end/total"
         // header). We page through with start/limit until every item is collected,
