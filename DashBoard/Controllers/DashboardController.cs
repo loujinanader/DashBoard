@@ -53,5 +53,36 @@ namespace DashBoard.Controllers
                 .ToList();
             return Ok(userTickets);
         }
+        [HttpGet("tickets/status/{statusId}")]
+        public async Task<IActionResult> GetTicketsByStatusId(int statusId)
+        {
+            var tickets = await _glpiService.GetTicketsAsync();
+            var statusTickets = tickets
+                .Where(t => t.Status?.Id == statusId)
+                .ToList();
+            return Ok(statusTickets);
+        }
+        [HttpGet("tickets/user/{userId}/totaldetails")]
+        public async Task<IActionResult> GetTotalTicketsByUserId(int userId)
+        {
+            var tickets = await _glpiService.GetTicketsAsync();
+
+            var userTickets = tickets
+                .Where(t => t.Team != null &&
+                            t.Team.Any(member => member.Id == userId))
+                .ToList();
+
+            var result = new
+            {
+                total = userTickets.Count,
+                @new = userTickets.Count(t => t.Status?.Id == 1),
+                processing = userTickets.Count(t => t.Status?.Id == 2),
+                pending = userTickets.Count(t => t.Status?.Id == 4),
+                solved = userTickets.Count(t => t.Status?.Id == 5),
+                closed = userTickets.Count(t => t.Status?.Id == 6)
+            };
+
+            return Ok(result);
+        }
     }
 }
