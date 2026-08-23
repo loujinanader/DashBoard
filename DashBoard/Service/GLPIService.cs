@@ -62,8 +62,16 @@ namespace DashBoard.Service
                 start += page.Count;
                 total = TryGetContentRangeTotal(response) ?? tickets.Count;
             }
+            var itUserIds = _configuration
+                .GetSection("GLPI:ITUserIds")
+                .Get<int[]>() ?? Array.Empty<int>();
 
-            return tickets;
+            var itTickets = tickets
+                .Where(t => t.Team != null &&
+                            t.Team.Any(member => itUserIds.Contains(member.Id)))
+                .ToList();
+
+            return itTickets;
         }
 
         private static int? TryGetContentRangeTotal(HttpResponseMessage response)
@@ -155,5 +163,6 @@ namespace DashBoard.Service
             _configuration[key] is { Length: > 0 } value
                 ? value
                 : throw new InvalidOperationException($"{key} is not configured.");
+
     }
 }

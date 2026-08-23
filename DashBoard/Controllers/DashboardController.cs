@@ -1,8 +1,12 @@
+using DashBoard.Models.Dashboard.DashBoard.Models;
+using DashBoard.Models.Glpi;
 using DashBoard.Service;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DashBoard.Controllers
 {
+  
     public class DashboardController : ControllerBase
     {
         private readonly IGLPIService _glpiService;
@@ -17,6 +21,45 @@ namespace DashBoard.Controllers
         {
             var tickets = await _glpiService.GetTicketsAsync();
             return Ok(tickets);
+        }
+        [HttpGet("total")]
+        public async Task<IActionResult> GetTotal()
+        {
+            var tickets = await _glpiService.GetTicketsAsync();
+            var result = new DashboardSummary
+            {
+                Total = tickets.Count,
+                New = tickets.Count(t => t.Status?.Id == 1),
+                Processing = tickets.Count(t => t.Status?.Id == 2),
+                Pending = tickets.Count(t => t.Status?.Id == 4),
+                Solved = tickets.Count(t => t.Status?.Id == 5),
+                Closed = tickets.Count(t => t.Status?.Id == 6)
+            };
+            return Ok(result);
+        }
+        [HttpGet("tickets/{id}")]
+        public async Task<IActionResult> GetTicketById(int id)
+        {
+            var tickets = await _glpiService.GetTicketsAsync();
+            var ticket = tickets.FirstOrDefault(t => t.Id == id);
+            if (ticket == null)
+                return NotFound(new
+                {
+                    message = $"Ticket with ID {id} was not found."
+                });
+            return Ok(ticket);
+        }
+        [HttpGet("tickets/user/{userId}")]
+        public async Task<IActionResult> GetTicketsByUserId(int userId)
+        {
+            var tickets = await _glpiService.GetTicketsAsync();
+
+            var userTickets = tickets
+                .Where(t => t.Team != null &&
+                            t.Team.Any(member => member.Id == userId))
+                .ToList();
+
+            return Ok(userTickets);
         }
     }
 }
