@@ -1,4 +1,4 @@
-﻿using DashBoard.Service;
+using DashBoard.Service;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DashBoard.Controllers
@@ -15,20 +15,8 @@ namespace DashBoard.Controllers
         [HttpGet("tickets")]
         public async Task<IActionResult> GetTickets()
         {
-            try
-            {
-                var tickets = await _glpiService.GetTicketsAsync();
-
-                return Ok(tickets);
-            }
-            catch (GlpiNotAuthorizedException ex)
-            {
-                return Unauthorized(new
-                {
-                    message = ex.Message,
-                    authorizeUrl = "/auth/glpi/login"
-                });
-            }
+            var tickets = await _glpiService.GetTicketsAsync();
+            return Ok(tickets);
         }
     }
 }

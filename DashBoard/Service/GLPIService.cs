@@ -1,178 +1,159 @@
 using DashBoard.Models.Glpi;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 
 namespace DashBoard.Service
 {
     public class GLPIService : IGLPIService
     {
-        // Serializes token refreshes across concurrent requests: GLPI rotates the
-        // refresh_token on every use, so two requests refreshing at once would race
-        // and the second would be refused (its refresh_token already spent).
-        private static readonly SemaphoreSlim _refreshLock = new(1, 1);
+        // Serializes access-token fetches across concurrent requests so a burst of
+        // requests hitting an expired cached token doesn't fire off duplicate
+        // password-grant token requests.
+        private static readonly SemaphoreSlim _tokenLock = new(1, 1);
 
         private readonly HttpClient _httpClient;
         private readonly IConfiguration _configuration;
-        private readonly string _tokenFilePath;
 
-        public GLPIService(HttpClient httpClient, IConfiguration configuration, IWebHostEnvironment env)
+        private string? _cachedAccessToken;
+        private DateTimeOffset _cachedAccessTokenExpiresAt = DateTimeOffset.MinValue;
+
+        public GLPIService(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
             _configuration = configuration;
-            _tokenFilePath = Path.Combine(env.ContentRootPath, "App_Data", "glpi-token.json");
         }
+
+        // GLPI paginates Assistance/Ticket at 100 items per page by default (a plain
+        // GET returns "206 Partial Content" with a "Content-Range: start-end/total"
+        // header). We page through with start/limit until every item is collected,
+        // rather than requesting one large limit that could still be short of a
+        // future ticket count or an instance-side cap.
+        private const int PageSize = 500;
 
         public async Task<List<Ticket>> GetTicketsAsync()
         {
-            var accessToken = await GetFreshAccessTokenAsync();
+            var accessToken = await GetAccessTokenAsync();
+            var baseUrl = $"{RequireConfig("GLPI:ApiBaseUrl")}/Assistance/Ticket";
 
-            var url = $"{RequireConfig("GLPI:ApiBaseUrl")}/Assistance/Ticket";
+            var tickets = new List<Ticket>();
+            var start = 0;
+            var total = int.MaxValue;
 
-            using var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-            var response = await _httpClient.SendAsync(request);
-            var json = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"GLPI error: {response.StatusCode} - {json}");
-
-            return JsonSerializer.Deserialize<List<Ticket>>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Ticket>();
-        }
-
-        public string GetAuthorizationUrl()
-        {
-            var clientId = RequireConfig("GLPI:ClientId");
-            var redirectUri = RequireConfig("GLPI:RedirectUri");
-            var authorizationUrl = RequireConfig("GLPI:AuthorizationUrl");
-
-            var query = $"response_type=code" +
-                        $"&client_id={Uri.EscapeDataString(clientId)}" +
-                        $"&redirect_uri={Uri.EscapeDataString(redirectUri)}";
-
-            return $"{authorizationUrl}?{query}";
-        }
-
-        // One-time bootstrap: exchanges the authorization_code obtained via the GLPI
-        // consent redirect for the first refresh_token, then stores it. After this,
-        // GetTicketsAsync no longer needs the authorization_code flow.
-        public async Task ExchangeAuthorizationCodeAsync(string code)
-        {
-            var clientId = RequireConfig("GLPI:ClientId");
-            var clientSecret = RequireConfig("GLPI:ClientSecret");
-            var redirectUri = RequireConfig("GLPI:RedirectUri");
-            var tokenUrl = RequireConfig("GLPI:TokenUrl");
-
-            using var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl);
-            request.Headers.Authorization = new AuthenticationHeaderValue("Basic", BasicCredentials(clientId, clientSecret));
-            request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
+            while (start < total)
             {
-                ["grant_type"] = "authorization_code",
-                ["code"] = code,
-                ["redirect_uri"] = redirectUri,
-                ["client_id"] = clientId,
-                ["client_secret"] = clientSecret
-            });
+                var url = $"{baseUrl}?start={start}&limit={PageSize}";
 
-            var response = await _httpClient.SendAsync(request);
-            var json = await response.Content.ReadAsStringAsync();
-
-            if (!response.IsSuccessStatusCode)
-                throw new Exception($"GLPI token error: {response.StatusCode} - {json}");
-
-            var tokenResponse = JsonSerializer.Deserialize<JsonElement>(json);
-
-            if (!tokenResponse.TryGetProperty("refresh_token", out var refreshTokenElement))
-                throw new Exception($"GLPI did not return a refresh token. Response: {json}");
-
-            var refreshToken = refreshTokenElement.GetString()
-                ?? throw new Exception("GLPI refresh token is empty.");
-
-            await WriteStoredRefreshTokenAsync(refreshToken);
-        }
-
-        // Exchanges the stored refresh_token for a brand-new access_token on every call.
-        // GLPI's OAuth server rotates the refresh_token on each use, so whatever new one
-        // comes back is persisted immediately, before it's ever used again.
-        private async Task<string> GetFreshAccessTokenAsync()
-        {
-            await _refreshLock.WaitAsync();
-            try
-            {
-                var refreshToken = await ReadStoredRefreshTokenAsync()
-                    ?? throw new GlpiNotAuthorizedException(
-                        "No GLPI refresh token stored yet. Visit /auth/glpi/login once to authorize this app.");
-
-                var clientId = RequireConfig("GLPI:ClientId");
-                var clientSecret = RequireConfig("GLPI:ClientSecret");
-                var tokenUrl = RequireConfig("GLPI:TokenUrl");
-
-                using var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl);
-                request.Headers.Authorization = new AuthenticationHeaderValue("Basic", BasicCredentials(clientId, clientSecret));
-                request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
-                {
-                    ["grant_type"] = "refresh_token",
-                    ["refresh_token"] = refreshToken
-                });
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
                 var response = await _httpClient.SendAsync(request);
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
-                    throw new GlpiNotAuthorizedException(
-                        $"GLPI rejected the stored refresh token ({response.StatusCode} - {json}). " +
-                        "Visit /auth/glpi/login to reauthorize.");
+                    throw new Exception($"GLPI error: {response.StatusCode} - {json}");
+
+                var page = JsonSerializer.Deserialize<List<Ticket>>(json,
+                    new JsonSerializerOptions { PropertyNameCaseInsensitive = true }) ?? new List<Ticket>();
+
+                if (page.Count == 0)
+                    break;
+
+                tickets.AddRange(page);
+                start += page.Count;
+                total = TryGetContentRangeTotal(response) ?? tickets.Count;
+            }
+
+            return tickets;
+        }
+
+        private static int? TryGetContentRangeTotal(HttpResponseMessage response)
+        {
+            if (!response.Content.Headers.TryGetValues("Content-Range", out var values))
+                return null;
+
+            var value = values.FirstOrDefault();
+            var slashIndex = value?.LastIndexOf('/') ?? -1;
+
+            return slashIndex >= 0 && int.TryParse(value.AsSpan(slashIndex + 1), out var total)
+                ? total
+                : null;
+        }
+
+        // This GLPI instance's high-level API only accepts OAuth2 "authorization_code"
+        // or "password" as valid security schemes (confirmed via its own
+        // /api.php/doc.json) -- client_credentials tokens are issuable but rejected
+        // by every protected route, since they carry no GLPI user identity. "password"
+        // trades a technical account's username/password for a token directly, no
+        // browser needed, and the resulting token acts as that GLPI user. There's no
+        // refresh_token either way here, so we just cache the access_token in memory
+        // until shortly before it expires, then request a fresh one.
+        private async Task<string> GetAccessTokenAsync()
+        {
+            if (_cachedAccessToken is not null && DateTimeOffset.UtcNow < _cachedAccessTokenExpiresAt)
+                return _cachedAccessToken;
+
+            await _tokenLock.WaitAsync();
+            try
+            {
+                if (_cachedAccessToken is not null && DateTimeOffset.UtcNow < _cachedAccessTokenExpiresAt)
+                    return _cachedAccessToken;
+
+                var clientId = RequireConfig("GLPI:ClientId");
+                var clientSecret = RequireConfig("GLPI:ClientSecret");
+                var username = RequireConfig("GLPI:Username");
+                var password = RequireConfig("GLPI:Password");
+                var tokenUrl = RequireConfig("GLPI:TokenUrl");
+
+                using var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl);
+                var payload = new
+                {
+                    grant_type = "password",
+                    client_id = clientId,
+                    client_secret = clientSecret,
+                    username = username,
+                    password = password,
+                    scope = "api"
+                };
+                // GLPI's token endpoint only recognizes a bare "application/json"
+                // Content-Type; StringContent's 3-arg constructor appends
+                // "; charset=utf-8", which makes GLPI treat the body as empty and
+                // reply "unsupported_grant_type" instead of parsing it.
+                request.Content = new StringContent(JsonSerializer.Serialize(payload));
+                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+                var response = await _httpClient.SendAsync(request);
+                var json = await response.Content.ReadAsStringAsync();
+
+                if (!response.IsSuccessStatusCode)
+                    throw new Exception($"GLPI token error: {response.StatusCode} - {json}");
 
                 var tokenResponse = JsonSerializer.Deserialize<JsonElement>(json);
-
-                if (tokenResponse.TryGetProperty("refresh_token", out var newRefreshTokenElement))
-                {
-                    var newRefreshToken = newRefreshTokenElement.GetString();
-                    if (!string.IsNullOrWhiteSpace(newRefreshToken))
-                        await WriteStoredRefreshTokenAsync(newRefreshToken);
-                }
 
                 if (!tokenResponse.TryGetProperty("access_token", out var accessTokenElement))
                     throw new Exception($"GLPI did not return an access token. Response: {json}");
 
-                return accessTokenElement.GetString()
+                var accessToken = accessTokenElement.GetString()
                     ?? throw new Exception("GLPI access token is empty.");
+
+                var expiresIn = tokenResponse.TryGetProperty("expires_in", out var expiresInElement)
+                    ? expiresInElement.GetInt32()
+                    : 3600;
+
+                _cachedAccessToken = accessToken;
+                // Refresh a bit early so a slow request never gets rejected mid-flight.
+                _cachedAccessTokenExpiresAt = DateTimeOffset.UtcNow.AddSeconds(expiresIn - 30);
+
+                return accessToken;
             }
             finally
             {
-                _refreshLock.Release();
+                _tokenLock.Release();
             }
         }
-
-        private async Task<string?> ReadStoredRefreshTokenAsync()
-        {
-            if (!File.Exists(_tokenFilePath))
-                return null;
-
-            var json = await File.ReadAllTextAsync(_tokenFilePath);
-            var stored = JsonSerializer.Deserialize<StoredToken>(json);
-            return stored?.RefreshToken;
-        }
-
-        private async Task WriteStoredRefreshTokenAsync(string refreshToken)
-        {
-            var directory = Path.GetDirectoryName(_tokenFilePath)!;
-            Directory.CreateDirectory(directory);
-
-            var stored = new StoredToken(refreshToken, DateTimeOffset.UtcNow);
-            await File.WriteAllTextAsync(_tokenFilePath, JsonSerializer.Serialize(stored));
-        }
-
-        private static string BasicCredentials(string clientId, string clientSecret) =>
-            Convert.ToBase64String(Encoding.UTF8.GetBytes($"{clientId}:{clientSecret}"));
 
         private string RequireConfig(string key) =>
             _configuration[key] is { Length: > 0 } value
                 ? value
                 : throw new InvalidOperationException($"{key} is not configured.");
-
-        private record StoredToken(string RefreshToken, DateTimeOffset UpdatedAtUtc);
     }
 }
