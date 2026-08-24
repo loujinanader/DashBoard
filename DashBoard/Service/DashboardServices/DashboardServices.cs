@@ -11,7 +11,7 @@ namespace DashBoard.Service.DashboardServices
             _glpiService = glpiService;
         }
         public async Task<List<Ticket>> GetTicketsAsync()
-            => await _glpiService.GetTicketsAsync();
+      => await _glpiService.GetTicketsAsync();
         public async Task<Ticket?> GetTicketByIdAsync(int id)
         {
             var tickets = await _glpiService.GetTicketsAsync();
@@ -52,10 +52,13 @@ namespace DashBoard.Service.DashboardServices
                 Processing = tickets.Count(t => t.Status?.Id == TicketsStatus.Processing),
                 Pending = tickets.Count(t => t.Status?.Id == TicketsStatus.Pending),
                 Solved = tickets.Count(t => t.Status?.Id == TicketsStatus.Solved),
-                Closed = tickets.Count(t => t.Status?.Id == TicketsStatus.Closed)
+                Closed = tickets.Count(t => t.Status?.Id == TicketsStatus.Closed),
+
             };
+
         }
     }
-
 }
+
+
 

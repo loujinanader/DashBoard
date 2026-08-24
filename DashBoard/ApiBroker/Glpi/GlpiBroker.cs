@@ -141,10 +141,10 @@ namespace DashBoard.Broker.Glpi
                 ? total
                 : null;
         }
-private string RequireConfig(string key) =>
-    _configuration[key] is { Length: > 0 } value
-        ? value
-        : throw new GlpiConfigurationException(
-            $"{key} is not configured.");
+        private string RequireConfig(string key) =>
+            _configuration[key] is { Length: > 0 } value
+                ? value
+                : throw new GlpiConfigurationException(
+                    $"{key} is not configured.");
     }
 }

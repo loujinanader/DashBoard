@@ -22,15 +22,16 @@ namespace DashBoard.Service.GlpiServices
                     .GetSection("GLPI:ITUserIds")
                     .Get<int[]>()
                 ?? Array.Empty<int>();
-            var itTickets = tickets
+            var itTickets =
+                tickets
                     .Where(t =>
-                     !t.Deleted &&
                         t.Team != null &&
                         t.Team.Any(member =>
-                            itUserIds.Contains(member.Id)))
+                        itUserIds.Contains(member.Id)))
                     .ToList();
 
-            return itTickets;
+            return tickets;
         }
+
     }
 }
