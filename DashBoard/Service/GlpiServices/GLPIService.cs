@@ -1,7 +1,7 @@
 using DashBoard.Models.Glpi;
 using System.Net.Http.Headers;
 using System.Text.Json;
-namespace DashBoard.Service
+namespace DashBoard.Service.GlpiServices
 {
     public class GLPIService : IGLPIService
     {

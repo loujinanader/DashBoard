@@ -1,5 +1,5 @@
 using DashBoard.Models.Glpi;
-namespace DashBoard.Service
+namespace DashBoard.Service.GlpiServices
 {
     public interface IGLPIService
     {
