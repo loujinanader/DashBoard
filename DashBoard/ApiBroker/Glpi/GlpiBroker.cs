@@ -1,4 +1,6 @@
-﻿using DashBoard.Models.Glpi;
+﻿using DashBoard.Exceptions;
+using DashBoard.Models.Glpi;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 namespace DashBoard.Broker.Glpi
@@ -39,10 +41,17 @@ namespace DashBoard.Broker.Glpi
                     await _httpClient.SendAsync(request);
                 var json =
                     await response.Content.ReadAsStringAsync();
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new GlpiAuthenticationException(
+                        $"GLPI authentication failed: {json}");
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception(
-                        $"GLPI error: {response.StatusCode} - {json}");
+                    throw new GlpiApiException(
+                        response.StatusCode,
+                        $"GLPI API error: {json}");
                 }
                 var page =
                     JsonSerializer.Deserialize<List<Ticket>>(
@@ -132,12 +141,10 @@ namespace DashBoard.Broker.Glpi
                 ? total
                 : null;
         }
-        private string RequireConfig(string key)
-        {
-            return _configuration[key] is { Length: > 0 } value
+        private string RequireConfig(string key) =>
+            _configuration[key] is { Length: > 0 } value
                 ? value
-                : throw new InvalidOperationException(
+                : throw new GlpiConfigurationException(
                     $"{key} is not configured.");
-        }
     }
 }

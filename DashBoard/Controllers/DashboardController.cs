@@ -48,7 +48,6 @@ namespace DashBoard.Controllers
         public async Task<IActionResult> GetTotalTicketsByUserId(int userId)
         {
             var result = await _dashboardService.GetTotalByUserIdAsync(userId);
-
             return Ok(result);
         }
     }
