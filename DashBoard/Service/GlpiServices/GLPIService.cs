@@ -1,16 +1,14 @@
-using DashBoard.ApiBroker.Glpi;
+using DashBoard.Broker.Glpi;
 using DashBoard.Models.Glpi;
-using System.Net.Http.Headers;
-using System.Text.Json;
 namespace DashBoard.Service.GlpiServices
 {
     public class GLPIService : IGLPIService
     {
-        private readonly IGlpiBroker _glpiBroker;
+        private readonly IGLPIBroker _glpiBroker;
         private readonly IConfiguration _configuration;
 
         public GLPIService(
-                IGlpiBroker glpiBroker,
+                IGLPIBroker glpiBroker,
             IConfiguration configuration)
         {
             _glpiBroker = glpiBroker;

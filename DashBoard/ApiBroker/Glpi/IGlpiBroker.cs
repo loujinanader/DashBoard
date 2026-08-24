@@ -1,7 +1,7 @@
 ﻿using DashBoard.Models.Glpi;
-namespace DashBoard.ApiBroker.Glpi
+namespace DashBoard.Broker.Glpi
 {
-    public interface IGlpiBroker
+    public interface IGLPIBroker
     {
        public Task<string> GetAccessTokenAsync();
        public Task<List<Ticket>> GetTicketsAsync();
