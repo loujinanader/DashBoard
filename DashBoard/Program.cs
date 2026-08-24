@@ -9,11 +9,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<IGLPIBroker, GLPIBroker>();
-builder.Services.AddHttpClient<IGLPIService, GLPIService>();
+builder.Services.AddScoped<IGLPIService, GLPIService>();
 builder.Services.AddScoped<IDashboardServices, DashboardService>();
-builder.Services.AddHttpClient<GLPIService>();
-builder.Services.AddScoped<IGLPIService>(sp =>
-    sp.GetRequiredService<GLPIService>());
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
