@@ -5,8 +5,8 @@ namespace DashBoard.Controllers
 {
     public class DashboardController : ControllerBase
     {
-        private readonly DashboardService _dashboardService;
-        public DashboardController(IDashboardService dashboardService)
+        private readonly IDashboardServices _dashboardService;
+        public DashboardController(IDashboardServices dashboardService)
         {
             _dashboardService = dashboardService;
         }
@@ -19,8 +19,8 @@ namespace DashBoard.Controllers
         [HttpGet("total")]
         public async Task<IActionResult> GetTotal()
         {
-            var tickets = await _dashboardService.GetTicketsAsync();
-            return Ok(tickets);
+            var summary = await _dashboardService.GetTotalAsync();
+            return Ok(summary);
         }
         [HttpGet("tickets/{id}")]
         public async Task<IActionResult> GetTicketById(int id)

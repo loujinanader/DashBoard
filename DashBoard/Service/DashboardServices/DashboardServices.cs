@@ -48,11 +48,11 @@ namespace DashBoard.Service.DashboardServices
             return new DashboardSummary
             {
                 Total = tickets.Count,
-                New = tickets.Count(t => t.Status?.Id == 1),
-                Processing = tickets.Count(t => t.Status?.Id == 2),
-                Pending = tickets.Count(t => t.Status?.Id == 4),
-                Solved = tickets.Count(t => t.Status?.Id == 5),
-                Closed = tickets.Count(t => t.Status?.Id == 6)
+                New = tickets.Count(t => t.Status?.Id == TicketsStatus.New),
+                Processing = tickets.Count(t => t.Status?.Id == TicketsStatus.Processing),
+                Pending = tickets.Count(t => t.Status?.Id == TicketsStatus.Pending),
+                Solved = tickets.Count(t => t.Status?.Id == TicketsStatus.Solved),
+                Closed = tickets.Count(t => t.Status?.Id == TicketsStatus.Closed)
             };
         }
     }
