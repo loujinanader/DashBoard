@@ -17,7 +17,7 @@ namespace DashBoard.Service.GlpiServices
 
         public async Task<List<Ticket>> GetTicketsAsync()
         {
-            var tickets =await _glpiBroker.GetTicketsAsync();
+            var tickets = await _glpiBroker.GetTicketsAsync();
             var itUserIds = _configuration
                     .GetSection("GLPI:ITUserIds")
                     .Get<int[]>()

@@ -1,5 +1,4 @@
-﻿using System.Net;
-namespace DashBoard.Exceptions
+﻿namespace DashBoard.Exceptions
 {
     public class GlpiAuthenticationException : Exception
     {

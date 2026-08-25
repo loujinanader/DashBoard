@@ -10,7 +10,7 @@
             public int Pending { get; set; }
             public int Solved { get; set; }
             public int Closed { get; set; }
-            
+
         }
     }
 }
