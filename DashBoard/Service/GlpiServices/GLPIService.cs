@@ -1,3 +1,4 @@
+using System.Linq;
 using DashBoard.Broker.Glpi;
 using DashBoard.Models.Glpi;
 namespace DashBoard.Service.GlpiServices
@@ -15,23 +16,30 @@ namespace DashBoard.Service.GlpiServices
             _configuration = configuration;
         }
 
+        //public async Task<List<Ticket>> GetTicketsAsync()
+        //{
+        //    var tickets = await _glpiBroker.GetTicketsAsync();
+        //    var itUserIds = _configuration
+        //            .GetSection("GLPI:ITUserIds")
+        //            .Get<int[]>()
+        //        ?? Array.Empty<int>();
+        //    var itTickets =
+        //        tickets
+        //            .Where(t =>
+        //                t.Team != null &&
+        //                t.Team.Any(member =>
+        //                itUserIds.Contains(member.Id)))
+        //            .ToList();
+
+        //    return tickets;
+        //}
         public async Task<List<Ticket>> GetTicketsAsync()
         {
             var tickets = await _glpiBroker.GetTicketsAsync();
-            var itUserIds = _configuration
-                    .GetSection("GLPI:ITUserIds")
-                    .Get<int[]>()
-                ?? Array.Empty<int>();
-            var itTickets =
-                tickets
-                    .Where(t =>
-                        t.Team != null &&
-                        t.Team.Any(member =>
-                        itUserIds.Contains(member.Id)))
-                    .ToList();
-
-            return tickets;
+            var validTickets = tickets
+                .Where(t => t.is_delete != true)
+                .ToList();
+            return validTickets;
         }
-
     }
 }
