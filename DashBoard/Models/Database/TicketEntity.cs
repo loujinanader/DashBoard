@@ -12,6 +12,8 @@
 
         public bool IsDeleted { get; set; }
 
+        public bool IsUnassigned { get; set; }
+
         public int? AssignedUserId { get; set; }
 
         public string? AssignedUserName { get; set; }

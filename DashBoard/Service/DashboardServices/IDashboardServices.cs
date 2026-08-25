@@ -10,5 +10,6 @@ namespace DashBoard.Service.DashboardServices
         public Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId);
         public Task<DashboardSummary> GetTotalAsync();
         public Task<DashboardSummary> GetTotalByUserIdAsync(int userId);
+        public Task SyncTicketsAsync();
     }
 }

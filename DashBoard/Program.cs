@@ -1,8 +1,10 @@
 using DashBoard.Broker.Glpi;
+using DashBoard.Data;
+using DashBoard.Repository;
 using DashBoard.Service.DashboardServices;
 using DashBoard.Service.GlpiServices;
-using DashBoard.Data;
 using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
@@ -13,6 +15,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<IGLPIBroker, GLPIBroker>();
 builder.Services.AddScoped<IGLPIService, GLPIService>();
 builder.Services.AddScoped<IDashboardServices, DashboardService>();
+builder.Services.AddScoped<ITicketRepository, TicketRepository>();
 
 builder.Services.AddDbContext<DashboardDbContext>(options =>
     options.UseSqlServer(

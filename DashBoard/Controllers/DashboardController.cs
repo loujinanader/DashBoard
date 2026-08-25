@@ -50,5 +50,15 @@ namespace DashBoard.Controllers
             var result = await _dashboardService.GetTotalByUserIdAsync(userId);
             return Ok(result);
         }
+        [HttpPost("sync")]
+        public async Task<IActionResult> SyncTickets()
+        {
+            await _dashboardService.SyncTicketsAsync();
+
+            return Ok(new
+            {
+                message = "Tickets synchronized successfully."
+            });
+        }
     }
 }

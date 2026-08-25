@@ -57,6 +57,9 @@ namespace DashBoard.Service.DashboardServices
             };
 
         }
+        public async Task SyncTicketsAsync()
+        =>    await _glpiService.SyncTicketsAsync();
+        
     }
 }
 
