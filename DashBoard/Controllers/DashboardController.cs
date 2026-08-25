@@ -27,9 +27,7 @@ namespace DashBoard.Controllers
             var ticket = await _dashboardService.GetTicketByIdAsync(id);
             if (ticket == null)
                 return NotFound(new
-                {
-                    message = $"Ticket with ID {id} was not found."
-                });
+                {  message = $"Ticket with ID {id} was not found."});
             return Ok(ticket);
         }
         [HttpGet("tickets/user/{userId}")]
@@ -54,11 +52,8 @@ namespace DashBoard.Controllers
         public async Task<IActionResult> SyncTickets()
         {
             await _dashboardService.SyncTicketsAsync();
-
             return Ok(new
-            {
-                message = "Tickets synchronized successfully."
-            });
+            { message = "Tickets synchronized successfully."});
         }
     }
 }

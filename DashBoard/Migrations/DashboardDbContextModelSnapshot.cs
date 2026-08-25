@@ -5,9 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
 #nullable disable
-
 namespace DashBoard.Migrations
 {
     [DbContext(typeof(DashboardDbContext))]
@@ -19,40 +17,28 @@ namespace DashBoard.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "10.0.11")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
-
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
             modelBuilder.Entity("DashBoard.Models.Database.TicketEntity", b =>
                 {
                     b.Property<int>("Id")
                         .HasColumnType("int");
-
                     b.Property<int?>("AssignedUserId")
                         .HasColumnType("int");
-
                     b.Property<string>("AssignedUserName")
                         .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("CreatedAt")
                         .HasColumnType("datetime2");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("StatusId")
                         .HasColumnType("int");
-
                     b.Property<string>("StatusName")
                         .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
-
                     b.HasKey("Id");
-
                     b.ToTable("Tickets");
                 });
 #pragma warning restore 612, 618

@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using DashBoard.Data;
+﻿using DashBoard.Data;
 using DashBoard.Models.Database;
 using Microsoft.EntityFrameworkCore;
 namespace DashBoard.Repository
@@ -9,34 +7,21 @@ namespace DashBoard.Repository
     {
         private readonly DashboardDbContext _context;
         private readonly DbSet<TicketEntity> _set;
-
         public TicketRepository(DashboardDbContext context)
         {
             _context = context;
             _set=_context.Set<TicketEntity>();
         }
-
         public async Task<List<TicketEntity>> GetAllAsync()
-        {
-            return await _context.Tickets
-                .Where(t => !t.IsDeleted)
-                .ToListAsync();
-        }
-
+            => await _context.Tickets.Where(t => !t.IsDeleted) .ToListAsync();
         public async Task<TicketEntity?> GetByIdAsync(int id)
-        {
-            return await _context.Tickets
-                .FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
-        }
+           => await _context.Tickets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
         public async Task UpsertAsync(TicketEntity ticket)
         {
-            var existingTicket = await _context.Tickets
-                .FirstOrDefaultAsync(t => t.Id == ticket.Id);
+            var existingTicket = await _context.Tickets.FirstOrDefaultAsync(t => t.Id == ticket.Id);
 
             if (existingTicket == null)
-            {
                 await _context.Tickets.AddAsync(ticket);
-            }
             else
             {
                 existingTicket.Name = ticket.Name;
@@ -49,7 +34,6 @@ namespace DashBoard.Repository
                 existingTicket.UpdatedAt = ticket.UpdatedAt;
             }
         }
-
          public async Task SaveChangesAsync()
                 => await _context.SaveChangesAsync();
     }

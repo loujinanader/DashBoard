@@ -2,7 +2,6 @@ using DashBoard.Broker.Glpi;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
 using DashBoard.Repository;
-
 namespace DashBoard.Service.GlpiServices
 {
     public class GLPIService : IGLPIService
@@ -10,10 +9,7 @@ namespace DashBoard.Service.GlpiServices
         private readonly IGLPIBroker _glpiBroker;
         private readonly IConfiguration _configuration;
         private readonly ITicketRepository _ticketRepository;
-        public GLPIService(
-                IGLPIBroker glpiBroker,
-            IConfiguration configuration,
-            ITicketRepository ticketRepository)
+        public GLPIService( IGLPIBroker glpiBroker, IConfiguration configuration,ITicketRepository ticketRepository)
         {
             _glpiBroker = glpiBroker;
             _configuration = configuration;
@@ -32,25 +28,17 @@ namespace DashBoard.Service.GlpiServices
                     StatusId = ticket.Status?.Id,
                     StatusName = ticket.Status?.Name,
                     IsDeleted = ticket.is_delete ?? false,
-                    AssignedUserId = ticket.Team?
-                        .FirstOrDefault(member => member.Role == "assigned")
-                        ?.Id,
-                    AssignedUserName = ticket.Team?
-                        .FirstOrDefault(member => member.Role == "assigned")
-                        ?.Name
+                    AssignedUserId = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Id,
+                    AssignedUserName = ticket.Team?.FirstOrDefault(member => member.Role == "assigned") ?.Name
                 };
-
                 await _ticketRepository.UpsertAsync(entity);
             }
-
             await _ticketRepository.SaveChangesAsync();
         }
         public async Task<List<Ticket>> GetTicketsAsync()
         {
             var tickets = await _glpiBroker.GetTicketsAsync();
-            var validTickets = tickets
-                .Where(t => t.is_delete != true)
-                .ToList();
+            var validTickets = tickets .Where(t => t.is_delete != true).ToList();
             return validTickets;
         }
     }
