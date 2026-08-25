@@ -1,4 +1,3 @@
-using System.Linq;
 using DashBoard.Broker.Glpi;
 using DashBoard.Models.Glpi;
 namespace DashBoard.Service.GlpiServices
@@ -7,7 +6,6 @@ namespace DashBoard.Service.GlpiServices
     {
         private readonly IGLPIBroker _glpiBroker;
         private readonly IConfiguration _configuration;
-
         public GLPIService(
                 IGLPIBroker glpiBroker,
             IConfiguration configuration)
@@ -15,7 +13,6 @@ namespace DashBoard.Service.GlpiServices
             _glpiBroker = glpiBroker;
             _configuration = configuration;
         }
-
         //public async Task<List<Ticket>> GetTicketsAsync()
         //{
         //    var tickets = await _glpiBroker.GetTicketsAsync();
