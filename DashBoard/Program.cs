@@ -1,6 +1,8 @@
 using DashBoard.Broker.Glpi;
 using DashBoard.Service.DashboardServices;
 using DashBoard.Service.GlpiServices;
+using DashBoard.Data;
+using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
@@ -11,6 +13,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<IGLPIBroker, GLPIBroker>();
 builder.Services.AddScoped<IGLPIService, GLPIService>();
 builder.Services.AddScoped<IDashboardServices, DashboardService>();
+
+builder.Services.AddDbContext<DashboardDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DashboardDatabase")));
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
