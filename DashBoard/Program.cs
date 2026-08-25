@@ -1,6 +1,7 @@
 using DashBoard.Broker.Glpi;
 using DashBoard.Data;
 using DashBoard.Repository;
+using DashBoard.Service.BackgroundServices;
 using DashBoard.Service.DashboardServices;
 using DashBoard.Service.GlpiServices;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ builder.Services.AddHttpClient<IGLPIBroker, GLPIBroker>();
 builder.Services.AddScoped<IGLPIService, GLPIService>();
 builder.Services.AddScoped<IDashboardServices, DashboardService>();
 builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddHostedService<TicketSyncBackgroundService>();
 
 builder.Services.AddDbContext<DashboardDbContext>(options =>
     options.UseSqlServer(
