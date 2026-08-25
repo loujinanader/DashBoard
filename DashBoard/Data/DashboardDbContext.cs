@@ -5,8 +5,8 @@ namespace DashBoard.Data
     public class DashboardDbContext : DbContext
     {
         public DashboardDbContext(
-       DbContextOptions<DashboardDbContext> options)
-       : base(options)
+            DbContextOptions<DashboardDbContext> options)
+            : base(options)
         {
         }
         public DbSet<TicketEntity> Tickets { get; set; }
@@ -16,6 +16,10 @@ namespace DashBoard.Data
 
             modelBuilder.Entity<TicketEntity>()
                 .HasKey(t => t.Id);
+
+            modelBuilder.Entity<TicketEntity>()
+                .Property(t => t.Id)
+                .ValueGeneratedNever();
         }
     }
 }

@@ -29,17 +29,12 @@ namespace DashBoard.Service.GlpiServices
                 {
                     Id = ticket.Id,
                     Name = ticket.Name,
-
                     StatusId = ticket.Status?.Id,
                     StatusName = ticket.Status?.Name,
-
                     IsDeleted = ticket.is_delete ?? false,
-
-
                     AssignedUserId = ticket.Team?
                         .FirstOrDefault(member => member.Role == "assigned")
                         ?.Id,
-
                     AssignedUserName = ticket.Team?
                         .FirstOrDefault(member => member.Role == "assigned")
                         ?.Name

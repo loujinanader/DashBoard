@@ -25,10 +25,7 @@ namespace DashBoard.Migrations
             modelBuilder.Entity("DashBoard.Models.Database.TicketEntity", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("AssignedUserId")
                         .HasColumnType("int");

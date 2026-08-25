@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DashBoard.Migrations
 {
     [DbContext(typeof(DashboardDbContext))]
-    [Migration("20260825101551_InitialCreate")]
+    [Migration("20260825134354_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -28,10 +28,7 @@ namespace DashBoard.Migrations
             modelBuilder.Entity("DashBoard.Models.Database.TicketEntity", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("AssignedUserId")
                         .HasColumnType("int");
