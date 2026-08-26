@@ -7,12 +7,10 @@ namespace DashBoard.Service.GlpiServices
     public class GLPIService : IGLPIService
     {
         private readonly IGLPIBroker _glpiBroker;
-        private readonly IConfiguration _configuration;
         private readonly ITicketRepository _ticketRepository;
-        public GLPIService( IGLPIBroker glpiBroker, IConfiguration configuration,ITicketRepository ticketRepository)
+        public GLPIService( IGLPIBroker glpiBroker, ITicketRepository ticketRepository)
         {
             _glpiBroker = glpiBroker;
-            _configuration = configuration;
             _ticketRepository = ticketRepository;
         }
         public async Task SyncTicketsAsync()

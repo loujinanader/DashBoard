@@ -9,7 +9,5 @@
         public bool IsDeleted { get; set; }
         public int? AssignedUserId { get; set; }
         public string? AssignedUserName { get; set; }
-        public DateTime? CreatedAt { get; set; }
-        public DateTime? UpdatedAt { get; set; }
     }
 }

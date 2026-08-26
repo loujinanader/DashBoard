@@ -30,11 +30,18 @@ namespace DashBoard.Repository
                 existingTicket.IsDeleted = ticket.IsDeleted;
                 existingTicket.AssignedUserId = ticket.AssignedUserId;
                 existingTicket.AssignedUserName = ticket.AssignedUserName;
-                existingTicket.CreatedAt = ticket.CreatedAt;
-                existingTicket.UpdatedAt = ticket.UpdatedAt;
             }
         }
          public async Task SaveChangesAsync()
                 => await _context.SaveChangesAsync();
-    }
+        public async Task<int> GetTotalAsync()
+               => await _context.Tickets.CountAsync(t => !t.IsDeleted);
+        public async Task<int> GetCountByStatusAsync(string statusName)
+               => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.StatusName == statusName);
+        public async Task<int> GetCountByUserIdAsync(int userId)
+               => await _context.Tickets.CountAsync(t =>!t.IsDeleted &&t.AssignedUserId == userId);
+        public async Task<int> GetCountByStatusAndUserIdAsync(string statusName,int userId)
+                => await _context.Tickets.CountAsync(t =>!t.IsDeleted && t.AssignedUserId == userId && t.StatusName == statusName);
+        }
+    
 }
