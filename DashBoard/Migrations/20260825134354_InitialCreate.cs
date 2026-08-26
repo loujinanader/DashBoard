@@ -31,7 +31,7 @@ namespace DashBoard.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable( name: "Tickets");
+            migrationBuilder.DropTable(name: "Tickets");
         }
     }
 }

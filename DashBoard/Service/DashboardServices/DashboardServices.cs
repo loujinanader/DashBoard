@@ -2,7 +2,6 @@
 using DashBoard.Models.Glpi;
 using DashBoard.Repository;
 using DashBoard.Service.GlpiServices;
-
 namespace DashBoard.Service.DashboardServices
 {
     public class DashboardService : IDashboardServices
@@ -10,7 +9,7 @@ namespace DashBoard.Service.DashboardServices
         private readonly IGLPIService _glpiService;
         private readonly ITicketRepository _ticketRepository;
 
-        public DashboardService(IGLPIService glpiService,ITicketRepository ticketRepository)
+        public DashboardService(IGLPIService glpiService, ITicketRepository ticketRepository)
         {
             _glpiService = glpiService;
             _ticketRepository = ticketRepository;
@@ -76,71 +75,66 @@ namespace DashBoard.Service.DashboardServices
         }
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(int userId)
         {
-            var tickets = await _ticketRepository.GetAllAsync();
-            return tickets
-                .Where(t =>!t.IsDeleted && t.AssignedUserId == userId)
-                .Select(t => new Ticket
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Status = t.StatusId.HasValue
-                        ? new Status
-                        {
-                            Id = t.StatusId.Value,
-                            Name = t.StatusName
-                        }
-                        : null,
-                    is_delete = t.IsDeleted,
-                    Team = new List<TeamMember>
+            var tickets = await _ticketRepository.GetByUserIdAsync(userId);
+            return tickets.Select(t => new Ticket
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Status = t.StatusId.HasValue
+                    ? new Status
                     {
-                        new TeamMember
-                        {
-                            Id = t.AssignedUserId!.Value,
-                            Name = t.AssignedUserName
-                        }
-                    }
-                })
-                .ToList();
+                        Id = t.StatusId.Value,
+                        Name = t.StatusName
+                    } : null,
+                is_delete = t.IsDeleted,
+                Team = t.AssignedUserId.HasValue
+                    ? new List<TeamMember>
+                    {
+                new TeamMember
+                {
+                    Id = t.AssignedUserId.Value,
+                    Name = t.AssignedUserName
+                }
+                    } : new List<TeamMember>()
+            }).ToList();
         }
 
         public async Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId)
         {
-            var tickets = await _ticketRepository.GetAllAsync();
-            return tickets
-                .Where(t =>!t.IsDeleted &&t.StatusId == statusId)
-                .Select(t => new Ticket
-                {
-                    Id = t.Id,
-                    Name = t.Name,
-                    Status = new Status
+            var tickets = await _ticketRepository.GetByStatusIdAsync(statusId);
+            return tickets.Select(t => new Ticket
+            {
+                Id = t.Id,
+                Name = t.Name,
+                Status = t.StatusId.HasValue
+                    ? new Status
                     {
-                        Id = t.StatusId!.Value,
+                        Id = t.StatusId.Value,
                         Name = t.StatusName
-                    },
-                    is_delete = t.IsDeleted,
-                    Team = t.AssignedUserId.HasValue
-                        ? new List<TeamMember>
-                        {
-                            new TeamMember
-                            {
-                                Id = t.AssignedUserId.Value,
-                                Name = t.AssignedUserName
-                            }
-                        }
-                        : new List<TeamMember>()
-                })
-                .ToList();
+                    }
+                    : null,
+                is_delete = t.IsDeleted,
+                Team = t.AssignedUserId.HasValue
+                    ? new List<TeamMember>
+                    {
+                new TeamMember
+                {
+                    Id = t.AssignedUserId.Value,
+                    Name = t.AssignedUserName
+                }
+                    }
+                    : new List<TeamMember>()
+            }).ToList();
         }
-        public async Task<DashboardSummary> GetTotalAsync()
-            => await CreateSummary();
+        public async Task<DashboardSummary> GetTotalAsync() => await CreateSummary();
         public async Task<DashboardSummary> GetTotalByUserIdAsync(int userId)
         {
             var total = await _ticketRepository.GetCountByUserIdAsync(userId);
-            var newTickets = await _ticketRepository.GetCountByStatusAndUserIdAsync( "New", userId);
-            var processing = await _ticketRepository.GetCountByStatusAndUserIdAsync( "Processing", userId);
-            var pending =await _ticketRepository.GetCountByStatusAndUserIdAsync("Pending", userId);
-            var solved =await _ticketRepository.GetCountByStatusAndUserIdAsync( "Solved", userId);
-            var closed = await _ticketRepository.GetCountByStatusAndUserIdAsync( "Closed", userId);
+            var newTickets = await _ticketRepository.GetCountByStatusAndUserIdAsync("New", userId);
+            var processing = await _ticketRepository.GetCountByStatusAndUserIdAsync("Processing", userId);
+            var pending = await _ticketRepository.GetCountByStatusAndUserIdAsync("Pending", userId);
+            var solved = await _ticketRepository.GetCountByStatusAndUserIdAsync("Solved", userId);
+            var closed = await _ticketRepository.GetCountByStatusAndUserIdAsync("Closed", userId);
             return new DashboardSummary
             {
                 Total = total,
@@ -158,7 +152,7 @@ namespace DashBoard.Service.DashboardServices
             var processing = await _ticketRepository.GetCountByStatusAsync("Processing");
             var pending = await _ticketRepository.GetCountByStatusAsync("Pending");
             var solved = await _ticketRepository.GetCountByStatusAsync("Solved");
-            var closed =await _ticketRepository.GetCountByStatusAsync("Closed");
+            var closed = await _ticketRepository.GetCountByStatusAsync("Closed");
             return new DashboardSummary
             {
                 Total = total,
@@ -169,8 +163,7 @@ namespace DashBoard.Service.DashboardServices
                 Closed = closed
             };
         }
-        public async Task SyncTicketsAsync()
-           => await _glpiService.SyncTicketsAsync();
+        public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();
     }
 }
 

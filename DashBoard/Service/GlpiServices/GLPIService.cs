@@ -8,7 +8,7 @@ namespace DashBoard.Service.GlpiServices
     {
         private readonly IGLPIBroker _glpiBroker;
         private readonly ITicketRepository _ticketRepository;
-        public GLPIService( IGLPIBroker glpiBroker, ITicketRepository ticketRepository)
+        public GLPIService(IGLPIBroker glpiBroker, ITicketRepository ticketRepository)
         {
             _glpiBroker = glpiBroker;
             _ticketRepository = ticketRepository;
@@ -27,7 +27,7 @@ namespace DashBoard.Service.GlpiServices
                     StatusName = ticket.Status?.Name,
                     IsDeleted = ticket.is_delete ?? false,
                     AssignedUserId = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Id,
-                    AssignedUserName = ticket.Team?.FirstOrDefault(member => member.Role == "assigned") ?.Name
+                    AssignedUserName = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Name
                 };
                 await _ticketRepository.UpsertAsync(entity);
             }
@@ -36,7 +36,7 @@ namespace DashBoard.Service.GlpiServices
         public async Task<List<Ticket>> GetTicketsAsync()
         {
             var tickets = await _glpiBroker.GetTicketsAsync();
-            var validTickets = tickets .Where(t => t.is_delete != true).ToList();
+            var validTickets = tickets.Where(t => t.is_delete != true).ToList();
             return validTickets;
         }
     }

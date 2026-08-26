@@ -10,10 +10,10 @@ namespace DashBoard.Repository
         public TicketRepository(DashboardDbContext context)
         {
             _context = context;
-            _set=_context.Set<TicketEntity>();
+            _set = _context.Set<TicketEntity>();
         }
         public async Task<List<TicketEntity>> GetAllAsync()
-            => await _context.Tickets.Where(t => !t.IsDeleted) .ToListAsync();
+            => await _context.Tickets.Where(t => !t.IsDeleted).ToListAsync();
         public async Task<TicketEntity?> GetByIdAsync(int id)
            => await _context.Tickets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
         public async Task UpsertAsync(TicketEntity ticket)
@@ -32,16 +32,19 @@ namespace DashBoard.Repository
                 existingTicket.AssignedUserName = ticket.AssignedUserName;
             }
         }
-         public async Task SaveChangesAsync()
-                => await _context.SaveChangesAsync();
+        public async Task SaveChangesAsync()
+               => await _context.SaveChangesAsync();
         public async Task<int> GetTotalAsync()
                => await _context.Tickets.CountAsync(t => !t.IsDeleted);
         public async Task<int> GetCountByStatusAsync(string statusName)
                => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.StatusName == statusName);
         public async Task<int> GetCountByUserIdAsync(int userId)
-               => await _context.Tickets.CountAsync(t =>!t.IsDeleted &&t.AssignedUserId == userId);
-        public async Task<int> GetCountByStatusAndUserIdAsync(string statusName,int userId)
-                => await _context.Tickets.CountAsync(t =>!t.IsDeleted && t.AssignedUserId == userId && t.StatusName == statusName);
-        }
-    
+               => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.AssignedUserId == userId);
+        public async Task<int> GetCountByStatusAndUserIdAsync(string statusName, int userId)
+                => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.AssignedUserId == userId && t.StatusName == statusName);
+        public async Task<List<TicketEntity>> GetByUserIdAsync(int userId)
+            => await _context.Tickets.Where(t => !t.IsDeleted && t.AssignedUserId == userId).ToListAsync();
+        public async Task<List<TicketEntity>> GetByStatusIdAsync(int statusId)
+            => await _context.Tickets.Where(t => !t.IsDeleted && t.StatusId == statusId).ToListAsync();
+    }
 }
