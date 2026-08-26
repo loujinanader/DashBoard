@@ -26,8 +26,8 @@ namespace DashBoard.Migrations
                         .HasColumnType("int");
                     b.Property<string>("AssignedUserName")
                         .HasColumnType("nvarchar(max)");
-                    b.Property<DateTime?>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    //b.Property<DateTime?>("CreatedAt")
+                    //    .HasColumnType("datetime2");
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
                     b.Property<string>("Name")
@@ -36,8 +36,8 @@ namespace DashBoard.Migrations
                         .HasColumnType("int");
                     b.Property<string>("StatusName")
                         .HasColumnType("nvarchar(max)");
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    //b.Property<DateTime?>("UpdatedAt")
+                    //    .HasColumnType("datetime2");
                     b.HasKey("Id");
                     b.ToTable("Tickets");
                 });
