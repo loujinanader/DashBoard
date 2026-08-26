@@ -1,4 +1,5 @@
-﻿using DashBoard.Models.Dashboard.DashBoard.Models;
+﻿using DashBoard.Models.Dashboard;
+using DashBoard.Models.Dashboard.DashBoard.Models;
 using DashBoard.Models.Glpi;
 namespace DashBoard.Service.DashboardServices
 {
@@ -10,6 +11,7 @@ namespace DashBoard.Service.DashboardServices
         public Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId);
         public Task<DashboardSummary> GetTotalAsync();
         public Task<DashboardSummary> GetTotalByUserIdAsync(int userId);
+        public Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync();
         public Task SyncTicketsAsync();
     }
 }

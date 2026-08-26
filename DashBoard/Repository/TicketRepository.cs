@@ -1,4 +1,5 @@
 ﻿using DashBoard.Data;
+using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
 using Microsoft.EntityFrameworkCore;
 namespace DashBoard.Repository
@@ -46,5 +47,24 @@ namespace DashBoard.Repository
             => await _context.Tickets.Where(t => !t.IsDeleted && t.AssignedUserId == userId).ToListAsync();
         public async Task<List<TicketEntity>> GetByStatusIdAsync(int statusId)
             => await _context.Tickets.Where(t => !t.IsDeleted && t.StatusId == statusId).ToListAsync();
+        public async Task<List<UserTicketSummary>> GetSummaryByUserAsync()
+        {
+            var rows = await _context.Tickets
+                .Where(t => !t.IsDeleted && t.AssignedUserId != null)
+                .GroupBy(t => new { t.AssignedUserId, t.AssignedUserName })
+                .Select(g => new UserTicketSummary
+                {
+                    UserId = g.Key.AssignedUserId!.Value,
+                    UserName = g.Key.AssignedUserName,
+                    Total = g.Count(),
+                    New = g.Count(t => t.StatusName == "New"),
+                    Processing = g.Count(t => t.StatusName == "Processing"),
+                    Pending = g.Count(t => t.StatusName == "Pending"),
+                    Solved = g.Count(t => t.StatusName == "Solved"),
+                    Closed = g.Count(t => t.StatusName == "Closed")
+                })
+                .ToListAsync();
+            return rows.OrderByDescending(r => r.Total).ToList();
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using DashBoard.Models.Dashboard.DashBoard.Models;
+﻿using DashBoard.Models.Dashboard;
+using DashBoard.Models.Dashboard.DashBoard.Models;
 using DashBoard.Models.Glpi;
 using DashBoard.Repository;
 using DashBoard.Service.GlpiServices;
@@ -163,6 +164,7 @@ namespace DashBoard.Service.DashboardServices
                 Closed = closed
             };
         }
+        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync() => await _ticketRepository.GetSummaryByUserAsync();
         public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();
     }
 }

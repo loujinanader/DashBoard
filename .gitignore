@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 Dashboard/appsettings.*
 Dashboard/appsettings.*.*
+
+# Playwright MCP test artifacts (screenshots/console logs from manual verification)
+.playwright-mcp/

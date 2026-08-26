@@ -47,6 +47,12 @@ namespace DashBoard.Controllers
             var result = await _dashboardService.GetTotalByUserIdAsync(userId);
             return Ok(result);
         }
+        [HttpGet("tickets/users/totaldetails")]
+        public async Task<IActionResult> GetTotalTicketsByAllUsers()
+        {
+            var result = await _dashboardService.GetSummaryByAllUsersAsync();
+            return Ok(result);
+        }
         [HttpPost("sync")]
         public async Task<IActionResult> SyncTickets()
         {

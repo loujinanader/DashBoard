@@ -1,23 +1,48 @@
 # KPI Dashboard
 
-ASP.NET Core (.NET 10) Web API that pulls IT helpdesk ticket data from a
-[GLPI](https://glpi-project.org/) instance to power an IT team KPI dashboard.
+ASP.NET Core (.NET 10) Web API that syncs IT helpdesk ticket data from a
+[GLPI](https://glpi-project.org/) instance into a local SQL Server database,
+to power an IT team KPI dashboard.
 
 ## Project layout
 
-- `DashBoard/Controllers/DashboardController.cs` — `GET /tickets`, returns GLPI tickets.
-- `DashBoard/Service/GLPIService.cs` — talks to GLPI's REST API and OAuth2 token endpoint.
-- `DashBoard/Models/Glpi/` — `Ticket`, `Status`, `TeamMember`.
+- `DashBoard/Controllers/DashboardController.cs` — the read API: `GET /tickets`,
+  `GET /total`, `GET /tickets/{id}`, `GET /tickets/user/{userId}`,
+  `GET /tickets/status/{statusId}`, `GET /tickets/user/{userId}/totaldetails`,
+  `GET /tickets/users/totaldetails` (per-person breakdown for everyone with at
+  least one assigned ticket), and `POST /sync` to trigger a sync on demand.
+- `web/` — the React + Vite + TypeScript dashboard SPA (no login; open to
+  anyone). `npm run dev` (proxies API calls to port 5276) or `npm run build`.
+- `DashBoard/Service/DashboardServices/` — reads `TicketEntity` rows via
+  `ITicketRepository` and reshapes them into `Ticket`/`DashboardSummary` DTOs.
+  **Never calls GLPI directly.**
+- `DashBoard/Service/GlpiServices/GLPIService.cs` — the sync path: pulls
+  tickets from GLPI via `IGLPIBroker` and upserts them into the `Tickets` table.
+- `DashBoard/Service/BackgroundServices/TicketSyncBackgroundService.cs` — runs
+  `GLPIService.SyncTicketsAsync()` on a timer (every 5 minutes).
+- `DashBoard/ApiBroker/Glpi/GLPIBroker.cs` — the only thing that talks to
+  GLPI's REST API and OAuth2 token endpoint.
+- `DashBoard/Repository/TicketRepository.cs` — EF Core access to the `Tickets`
+  table (`DashboardDbContext`, SQL Server).
+- `DashBoard/Models/Glpi/` — GLPI-shaped DTOs: `Ticket`, `Status`, `TeamMember`.
+- `DashBoard/Models/Database/TicketEntity.cs` — the persisted row shape.
 
-## How authentication works
+## How it fits together
+
+`GET /tickets` (and the other read endpoints) **read from the local
+database**, not from GLPI. The database is kept up to date by
+`TicketSyncBackgroundService`, which calls the same sync logic exposed via
+`POST /sync`. So a dashboard read is only ever as fresh as the last sync —
+if GLPI is unreachable or misconfigured, existing endpoints still serve
+whatever was last synced; only `POST /sync` (and the background timer) fail.
+
+## How GLPI authentication works
 
 This app authenticates to GLPI's OAuth2 API using the `password` grant —
 it trades a technical/service GLPI account's username and password directly
-for an `access_token`, with no browser or consent step. On the first
-`GET /tickets` call (and again whenever the cached token is close to
-expiring), `GLPIService` requests a fresh `access_token` from GLPI's token
-endpoint and caches it in memory for `expires_in` seconds. There's no
-`refresh_token` with this grant and nothing is persisted to disk.
+for an `access_token`, with no browser or consent step. Every sync run,
+`GLPIBroker` requests a fresh `access_token` from GLPI's token endpoint.
+There's no `refresh_token` with this grant and nothing is persisted to disk.
 
 The resulting token acts as that GLPI user, so it inherits that account's
 entities/profile and ticket-view rights. (`client_credentials` was tried
@@ -36,12 +61,23 @@ page.
    the relevant tickets, and confirm the OAuth client (Setup → OAuth
    clients) has the **Password** grant type enabled.
 
-2. **Configure secrets.** `appsettings.json` and `appsettings.Development.json`
-   already have placeholder `GLPI:ClientId` / `GLPI:ClientSecret` entries so
-   the required shape is visible — but they're committed to git, so **never
-   put real values directly in those files**. Fill in `ClientId`,
-   `ClientSecret`, `Username`, and `Password` via `dotnet user-secrets`
-   instead, which stores them outside the repo:
+2. **A reachable SQL Server instance.** Set `ConnectionStrings:DashboardDatabase`
+   (in `appsettings.json` or an environment-specific override) and apply
+   migrations:
+
+   ```
+   dotnet ef database update --project DashBoard
+   ```
+
+3. **Configure secrets.** `appsettings.json` and `appsettings.Development.json`
+   have `GLPI:ClientId` / `GLPI:ClientSecret` / `GLPI:Username` / `GLPI:Password`
+   entries so the required shape is visible — but **never put real values
+   directly in those files**, even though they're currently gitignored
+   (`Dashboard/appsettings.*` — note this pattern's casing doesn't match the
+   actual `DashBoard/` folder; it only works today because Windows/git are
+   case-insensitive here by default, so treat it as fragile, not a guarantee).
+   Fill in the four values via `dotnet user-secrets` instead, which stores
+   them outside the repo entirely:
 
    ```
    dotnet user-secrets set "GLPI:ClientId" "..." --project DashBoard
@@ -52,15 +88,18 @@ page.
 
    `GLPI:ApiBaseUrl` and `GLPI:TokenUrl` are already set in `appsettings.json`.
 
-3. **Run the app**:
+4. **Run the app**:
 
    ```
    dotnet run --project DashBoard
    ```
 
-4. `GET /tickets` works immediately — no bootstrap step. If it fails, check
-   that the OAuth client has the `password` grant enabled and that the
-   configured GLPI account can actually view tickets.
+5. The background service syncs 10 seconds after startup and every 5 minutes
+   after that; `POST /sync` triggers the same sync immediately. `GET /tickets`
+   returns whatever is in the database at that point (empty until the first
+   sync completes). If sync fails, check that the OAuth client has the
+   `password` grant enabled and that the configured GLPI account can
+   actually view tickets.
 
 ## Running
 
@@ -69,6 +108,23 @@ dotnet run --project DashBoard
 ```
 
 Swagger UI is available in development at `/swagger`.
+
+## Running the web dashboard
+
+`web/` is a React + Vite + TypeScript SPA — no login, open to anyone, reads
+the API above.
+
+```
+cd web
+npm install
+npm run dev
+```
+
+Opens at `http://localhost:5173`. Its dev server proxies `/tickets`, `/total`,
+and `/sync` straight through to `http://localhost:5276` (see `vite.config.ts`),
+so the backend needs to already be running and there's no CORS setup needed
+in `Program.cs`. `npm run build` produces a static `dist/` (not yet wired up
+to be served by the API — today the two run as separate processes).
 
 ## Changelog
 
@@ -238,3 +294,47 @@ after each page, and keep going until every ticket is collected.
 Verified against the real instance: `GET /tickets` now returns all **830**
 tickets, all unique IDs, matching GLPI's own reported total exactly, in
 ~2.2 seconds (2 page requests).
+
+### Added the web dashboard, and a per-person ticket breakdown
+
+The API had no frontend at all before this — `web/` (React + Vite + TS, see
+"Running the web dashboard" above) is the first one, deliberately with no
+login, matching the backend, which has never had auth on it either.
+
+**New backend endpoint**: `GET /tickets/users/totaldetails`
+(`TicketRepository.GetSummaryByUserAsync()`) groups tickets by
+`AssignedUserId` in one SQL query (conditional `COUNT(CASE WHEN ...)` per
+status, not N+1 per-user queries) and returns a `UserTicketSummary` per
+person. That's a new model, not a reuse of `DashboardSummary`: every
+existing `DashboardSummary` consumer has exactly one implicit scope (the
+grand total, or the one `userId` already in its URL), so it has no identity
+field. This endpoint returns a *list* — every row needs its own
+`UserId`/`UserName` to tell people apart — and it adds `Other` (`Total` minus
+the five tracked statuses, as a computed property), which the other two
+`DashboardSummary` endpoints don't need and shouldn't have to carry just
+because this one does.
+
+`Other` exists because `Total` and the five named status counts don't
+actually agree — GLPI has ticket statuses (e.g. id `3`, between `Processing`
+and `Pending`) this app has never tracked (see the stringly-typed-status note
+in `CLAUDE.md`). Without `Other`, a per-person stacked bar's segments
+wouldn't add up to the labeled total, which is worse than not showing the gap
+at all.
+
+**Frontend** (`web/src/features/dashboard/TeamBreakdown.tsx`): a horizontal
+stacked bar per person, one person per row (not several people side by side —
+an earlier version's CSS put each person's name/bar/total into a 3-column
+*grid* on the outer container while each person was already its own wrapper
+`div`, so the grid placed three people's wrapper-divs across the row instead
+of one; fixed by making the outer container a plain vertical flex stack and
+giving each person's own row its internal 3-column layout instead), capped to
+the top 10 by ticket count (all of them are one Ctrl-click away in "View as
+table", which is unfiltered). Colored with an ordinal ramp — one hue,
+monotone lightness — because ticket status is a lifecycle sequence
+(New → Closed), not an arbitrary category; validated light/dark variants
+against `--color-surface` with the dataviz skill's `validate_palette.js
+--ordinal`. The first validated version's adjacent steps (e.g. Solved vs.
+Closed) were too close together to tell apart at the size a stacked-bar
+segment actually renders at, so the ramp was re-stepped wider (still
+validated) and legend swatches got a 1px border ring so the palest step
+doesn't disappear against a dark surface.

@@ -1,4 +1,5 @@
-﻿using DashBoard.Models.Database;
+﻿using DashBoard.Models.Dashboard;
+using DashBoard.Models.Database;
 namespace DashBoard.Repository
 {
     public interface ITicketRepository
@@ -13,5 +14,6 @@ namespace DashBoard.Repository
         public Task<int> GetCountByStatusAndUserIdAsync(string statusName, int userId);
         public Task<List<TicketEntity>> GetByUserIdAsync(int userId);
         public Task<List<TicketEntity>> GetByStatusIdAsync(int statusId);
+        public Task<List<UserTicketSummary>> GetSummaryByUserAsync();
     }
 }
