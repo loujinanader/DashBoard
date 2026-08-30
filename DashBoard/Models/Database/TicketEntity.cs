@@ -10,5 +10,7 @@
         public int? AssignedUserId { get; set; }
         public string? AssignedUserName { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int? LocationId { get; set; }
+        public string? LocationName { get; set; }
     }
 }

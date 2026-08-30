@@ -38,6 +38,8 @@ namespace DashBoard.Repository
                 existingTicket.AssignedUserId = ticket.AssignedUserId;
                 existingTicket.AssignedUserName = ticket.AssignedUserName;
                 existingTicket.CreatedAt = ticket.CreatedAt;
+                existingTicket.LocationId = ticket.LocationId;
+                existingTicket.LocationName = ticket.LocationName;
             }
         }
         public async Task SaveChangesAsync()

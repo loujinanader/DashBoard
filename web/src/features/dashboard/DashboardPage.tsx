@@ -35,6 +35,7 @@ function matchesSearch(ticket: Ticket, query: string): boolean {
     ticket.name ?? '',
     ticket.status?.name ?? '',
     assignedName(ticket),
+    ticket.location?.name ?? '',
   ]
     .join(' ')
     .toLowerCase();
@@ -151,6 +152,7 @@ export function DashboardPage({ dateFrom, dateTo }: DashboardPageProps) {
                   <th>Name</th>
                   <th>Status</th>
                   <th>Assigned to</th>
+                  <th>Location</th>
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +168,7 @@ export function DashboardPage({ dateFrom, dateTo }: DashboardPageProps) {
                       )}
                     </td>
                     <td>{assignedName(ticket)}</td>
+                    <td>{ticket.location?.name ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>

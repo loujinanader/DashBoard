@@ -28,7 +28,9 @@ namespace DashBoard.Service.GlpiServices
                     IsDeleted = ticket.is_delete ?? false,
                     AssignedUserId = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Id,
                     AssignedUserName = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Name,
-                    CreatedAt = ticket.DateCreation
+                    CreatedAt = ticket.DateCreation,
+                    LocationId = ticket.Location?.Id,
+                    LocationName = ticket.Location?.Name
                 };
                 await _ticketRepository.UpsertAsync(entity);
             }
