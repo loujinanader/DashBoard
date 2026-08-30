@@ -1,24 +1,8 @@
 import { useRef, useState } from 'react';
 import { useUserSummaries } from './api/dashboard-queries';
 import type { DateRange, UserTicketSummary } from './api/dashboard-api';
+import { STATUS_SEGMENTS as SEGMENTS } from './status-segments';
 import './team-breakdown.css';
-
-interface Segment {
-  key: keyof UserTicketSummary;
-  label: string;
-  colorVar: string;
-}
-
-/** Ordinal ticket-lifecycle order (New -> Closed): position carries meaning,
- * so color is a single hue, monotone lightness (see tokens.css --status-*). */
-const SEGMENTS: Segment[] = [
-  { key: 'new', label: 'New', colorVar: '--status-new' },
-  { key: 'processing', label: 'Processing', colorVar: '--status-processing' },
-  { key: 'pending', label: 'Pending', colorVar: '--status-pending' },
-  { key: 'solved', label: 'Solved', colorVar: '--status-solved' },
-  { key: 'closed', label: 'Closed', colorVar: '--status-closed' },
-  { key: 'other', label: 'Other', colorVar: '--status-other' },
-];
 
 interface TooltipState {
   x: number;

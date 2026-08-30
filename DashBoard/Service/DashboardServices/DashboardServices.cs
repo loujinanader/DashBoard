@@ -189,6 +189,7 @@ namespace DashBoard.Service.DashboardServices
             };
         }
         public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByUserAsync(from, to);
+        public async Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByLocationAsync(from, to);
         public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();
     }
 }

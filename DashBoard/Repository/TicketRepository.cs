@@ -75,5 +75,19 @@ namespace DashBoard.Repository
                 .ToListAsync();
             return rows.OrderByDescending(r => r.Total).ToList();
         }
+        public async Task<List<LocationTicketSummary>> GetSummaryByLocationAsync(DateTime? from = null, DateTime? to = null)
+        {
+            var query = WithDateRange(_context.Tickets.Where(t => !t.IsDeleted), from, to);
+            var rows = await query
+                .GroupBy(t => new { t.LocationId, t.LocationName })
+                .Select(g => new LocationTicketSummary
+                {
+                    LocationId = g.Key.LocationId,
+                    LocationName = g.Key.LocationName,
+                    Total = g.Count()
+                })
+                .ToListAsync();
+            return rows.OrderByDescending(r => r.Total).ToList();
+        }
     }
 }

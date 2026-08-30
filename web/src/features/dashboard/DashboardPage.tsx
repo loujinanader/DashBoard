@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useDashboardSummary, useTickets } from './api/dashboard-queries';
 import { TICKET_STATUSES, type DateRange, type Ticket } from './api/dashboard-api';
 import { TeamBreakdown } from './TeamBreakdown';
+import { StatusPieCard } from './StatusPieCard';
+import { LocationPieCard } from './LocationPieCard';
 import './dashboard-page.css';
 
 function StatCard({ label, value, tone }: { label: string; value: number | string; tone?: 'warning' }) {
@@ -105,6 +107,11 @@ export function DashboardPage({ dateFrom, dateTo }: DashboardPageProps) {
           Date From must be on or before Date To.
         </p>
       )}
+
+      <div className="dashboard-pie-grid">
+        <StatusPieCard summary={summary} isLoading={summaryLoading} isError={summaryError} />
+        <LocationPieCard dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
+      </div>
 
       <TeamBreakdown dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
 

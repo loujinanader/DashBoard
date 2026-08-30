@@ -89,6 +89,18 @@
   --status-closed: #0d366b;
   --status-other: #7b8595;
 
+  /* Categorical palette (locations, or any unordered grouping): unlike the
+     ordinal status ramp above, slice order carries no meaning, so each
+     value is a distinct hue rather than one hue at different lightness. */
+  --chart-cat-1: #c9622c;
+  --chart-cat-2: #a67f26;
+  --chart-cat-3: #4c8f4c;
+  --chart-cat-4: #237a5b;
+  --chart-cat-5: #2d7aa3;
+  --chart-cat-6: #5c5cc4;
+  --chart-cat-7: #8548a8;
+  --chart-cat-8: #b13868;
+
   font-family: var(--font-sans);
   background: var(--color-bg);
   color: var(--color-text);
@@ -132,6 +144,15 @@
     --status-closed: #184f95;
     --status-other: #707b95;
 
+    --chart-cat-1: #e0873f;
+    --chart-cat-2: #d1a344;
+    --chart-cat-3: #74b874;
+    --chart-cat-4: #4fae8e;
+    --chart-cat-5: #5aa8d6;
+    --chart-cat-6: #8f8fe0;
+    --chart-cat-7: #b47ed6;
+    --chart-cat-8: #d888aa;
+
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
     --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.55);
   }
@@ -169,6 +190,15 @@
   --status-closed: #184f95;
   --status-other: #707b95;
 
+  --chart-cat-1: #e0873f;
+  --chart-cat-2: #d1a344;
+  --chart-cat-3: #74b874;
+  --chart-cat-4: #4fae8e;
+  --chart-cat-5: #5aa8d6;
+  --chart-cat-6: #8f8fe0;
+  --chart-cat-7: #b47ed6;
+  --chart-cat-8: #d888aa;
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.55);
 }
@@ -204,6 +234,15 @@
   --status-solved: #184f95;
   --status-closed: #0d366b;
   --status-other: #7b8595;
+
+  --chart-cat-1: #c9622c;
+  --chart-cat-2: #a67f26;
+  --chart-cat-3: #4c8f4c;
+  --chart-cat-4: #237a5b;
+  --chart-cat-5: #2d7aa3;
+  --chart-cat-6: #5c5cc4;
+  --chart-cat-7: #8548a8;
+  --chart-cat-8: #b13868;
 
   --shadow-sm: 0 1px 2px rgba(23, 27, 36, 0.07);
   --shadow-md: 0 6px 20px rgba(23, 27, 36, 0.10);

@@ -61,6 +61,14 @@ namespace DashBoard.Controllers
             var result = await _dashboardService.GetSummaryByAllUsersAsync(from, to);
             return Ok(result);
         }
+        [HttpGet("tickets/locations/totaldetails")]
+        public async Task<IActionResult> GetTotalTicketsByAllLocations([FromQuery] DateOnly? dateFrom, [FromQuery] DateOnly? dateTo)
+        {
+            var from = dateFrom?.ToDateTime(TimeOnly.MinValue);
+            var to = dateTo?.ToDateTime(TimeOnly.MinValue);
+            var result = await _dashboardService.GetSummaryByAllLocationsAsync(from, to);
+            return Ok(result);
+        }
         [HttpPost("sync")]
         public async Task<IActionResult> SyncTickets()
         {
