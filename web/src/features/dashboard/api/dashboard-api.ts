@@ -27,7 +27,7 @@ export interface TicketStatus {
 
 export interface TicketLocation {
   id: number;
-  name?: string | null;
+  name: string;
 }
 
 export interface Ticket {
@@ -37,7 +37,7 @@ export interface Ticket {
   is_deleted?: boolean | null;
   team?: TeamMember[];
   date_creation?: string | null;
-  location?: TicketLocation | null;
+  location: TicketLocation;
 }
 
 /** Mirrors DashBoard/Models/Glpi/TicketsStatus.cs. */

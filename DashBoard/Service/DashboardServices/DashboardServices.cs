@@ -43,13 +43,11 @@ namespace DashBoard.Service.DashboardServices
                     }
                     : new List<TeamMember>(),
                 DateCreation = t.CreatedAt,
-                Location = t.LocationId.HasValue
-                    ? new Location
-                    {
-                        Id = t.LocationId.Value,
-                        Name = t.LocationName
-                    }
-                    : null
+                Location = new Location
+                {
+                    Id = t.LocationId,
+                    Name = t.LocationName
+                }
             }).ToList();
         }
         public async Task<Ticket?> GetTicketByIdAsync(int id)
@@ -81,13 +79,11 @@ namespace DashBoard.Service.DashboardServices
                     }
                     : new List<TeamMember>(),
                 DateCreation = ticket.CreatedAt,
-                Location = ticket.LocationId.HasValue
-                    ? new Location
-                    {
-                        Id = ticket.LocationId.Value,
-                        Name = ticket.LocationName
-                    }
-                    : null
+                Location = new Location
+                {
+                    Id = ticket.LocationId,
+                    Name = ticket.LocationName
+                }
             };
         }
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(int userId)
@@ -114,13 +110,11 @@ namespace DashBoard.Service.DashboardServices
                 }
                     } : new List<TeamMember>(),
                 DateCreation = t.CreatedAt,
-                Location = t.LocationId.HasValue
-                    ? new Location
-                    {
-                        Id = t.LocationId.Value,
-                        Name = t.LocationName
-                    }
-                    : null
+                Location = new Location
+                {
+                    Id = t.LocationId,
+                    Name = t.LocationName
+                }
             }).ToList();
         }
 
@@ -150,13 +144,11 @@ namespace DashBoard.Service.DashboardServices
                     }
                     : new List<TeamMember>(),
                 DateCreation = t.CreatedAt,
-                Location = t.LocationId.HasValue
-                    ? new Location
-                    {
-                        Id = t.LocationId.Value,
-                        Name = t.LocationName
-                    }
-                    : null
+                Location = new Location
+                {
+                    Id = t.LocationId,
+                    Name = t.LocationName
+                }
             }).ToList();
         }
         public async Task<DashboardSummary> GetTotalAsync(DateTime? from = null, DateTime? to = null) => await CreateSummary(from, to);

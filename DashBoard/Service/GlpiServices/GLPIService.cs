@@ -29,8 +29,8 @@ namespace DashBoard.Service.GlpiServices
                     AssignedUserId = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Id,
                     AssignedUserName = ticket.Team?.FirstOrDefault(member => member.Role == "assigned")?.Name,
                     CreatedAt = ticket.DateCreation,
-                    LocationId = ticket.Location?.Id,
-                    LocationName = ticket.Location?.Name
+                    LocationId = ticket.Location.Id,
+                    LocationName = ticket.Location.Name
                 };
                 await _ticketRepository.UpsertAsync(entity);
             }

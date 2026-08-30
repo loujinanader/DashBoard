@@ -12,7 +12,7 @@ namespace DashBoard.Models.Glpi
         public List<TeamMember>? Team { get; set; }
         [JsonPropertyName("date_creation")]
         public DateTime DateCreation { get; set; }
-        public Location? Location { get; set; }
+        public Location Location { get; set; }
 
     }
 }
