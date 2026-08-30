@@ -54,6 +54,35 @@
   font-size: var(--text-lg);
 }
 
+.dashboard-tickets-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dashboard-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.dashboard-pagination-summary {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.dashboard-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.dashboard-pagination-page {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
 .dashboard-empty {
   color: var(--color-text-muted);
   font-size: var(--text-sm);
