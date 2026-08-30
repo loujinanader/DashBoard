@@ -16,9 +16,9 @@ namespace DashBoard.Service.DashboardServices
             _ticketRepository = ticketRepository;
         }
 
-        public async Task<List<Ticket>> GetTicketsAsync()
+        public async Task<List<Ticket>> GetTicketsAsync(DateTime? from = null, DateTime? to = null)
         {
-            var tickets = await _ticketRepository.GetAllAsync();
+            var tickets = await _ticketRepository.GetAllAsync(from, to);
 
             return tickets.Select(t => new Ticket
             {
@@ -41,7 +41,8 @@ namespace DashBoard.Service.DashboardServices
                             Name = t.AssignedUserName
                         }
                     }
-                    : new List<TeamMember>()
+                    : new List<TeamMember>(),
+                DateCreation = t.CreatedAt
             }).ToList();
         }
         public async Task<Ticket?> GetTicketByIdAsync(int id)
@@ -71,7 +72,8 @@ namespace DashBoard.Service.DashboardServices
                             Name = ticket.AssignedUserName
                         }
                     }
-                    : new List<TeamMember>()
+                    : new List<TeamMember>(),
+                DateCreation = ticket.CreatedAt
             };
         }
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(int userId)
@@ -96,13 +98,14 @@ namespace DashBoard.Service.DashboardServices
                     Id = t.AssignedUserId.Value,
                     Name = t.AssignedUserName
                 }
-                    } : new List<TeamMember>()
+                    } : new List<TeamMember>(),
+                DateCreation = t.CreatedAt
             }).ToList();
         }
 
-        public async Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId)
+        public async Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId, DateTime? from = null, DateTime? to = null)
         {
-            var tickets = await _ticketRepository.GetByStatusIdAsync(statusId);
+            var tickets = await _ticketRepository.GetByStatusIdAsync(statusId, from, to);
             return tickets.Select(t => new Ticket
             {
                 Id = t.Id,
@@ -124,10 +127,11 @@ namespace DashBoard.Service.DashboardServices
                     Name = t.AssignedUserName
                 }
                     }
-                    : new List<TeamMember>()
+                    : new List<TeamMember>(),
+                DateCreation = t.CreatedAt
             }).ToList();
         }
-        public async Task<DashboardSummary> GetTotalAsync() => await CreateSummary();
+        public async Task<DashboardSummary> GetTotalAsync(DateTime? from = null, DateTime? to = null) => await CreateSummary(from, to);
         public async Task<DashboardSummary> GetTotalByUserIdAsync(int userId)
         {
             var total = await _ticketRepository.GetCountByUserIdAsync(userId);
@@ -146,14 +150,14 @@ namespace DashBoard.Service.DashboardServices
                 Closed = closed
             };
         }
-        private async Task<DashboardSummary> CreateSummary()
+        private async Task<DashboardSummary> CreateSummary(DateTime? from = null, DateTime? to = null)
         {
-            var total = await _ticketRepository.GetTotalAsync();
-            var newTickets = await _ticketRepository.GetCountByStatusAsync("New");
-            var processing = await _ticketRepository.GetCountByStatusAsync("Processing");
-            var pending = await _ticketRepository.GetCountByStatusAsync("Pending");
-            var solved = await _ticketRepository.GetCountByStatusAsync("Solved");
-            var closed = await _ticketRepository.GetCountByStatusAsync("Closed");
+            var total = await _ticketRepository.GetTotalAsync(from, to);
+            var newTickets = await _ticketRepository.GetCountByStatusAsync("New", from, to);
+            var processing = await _ticketRepository.GetCountByStatusAsync("Processing", from, to);
+            var pending = await _ticketRepository.GetCountByStatusAsync("Pending", from, to);
+            var solved = await _ticketRepository.GetCountByStatusAsync("Solved", from, to);
+            var closed = await _ticketRepository.GetCountByStatusAsync("Closed", from, to);
             return new DashboardSummary
             {
                 Total = total,
@@ -164,7 +168,7 @@ namespace DashBoard.Service.DashboardServices
                 Closed = closed
             };
         }
-        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync() => await _ticketRepository.GetSummaryByUserAsync();
+        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByUserAsync(from, to);
         public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();
     }
 }

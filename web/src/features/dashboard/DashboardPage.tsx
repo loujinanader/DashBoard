@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useDashboardSummary, useTickets } from './api/dashboard-queries';
-import { TICKET_STATUSES, type Ticket } from './api/dashboard-api';
+import { TICKET_STATUSES, type DateRange, type Ticket } from './api/dashboard-api';
 import { TeamBreakdown } from './TeamBreakdown';
 import './dashboard-page.css';
 
@@ -29,10 +29,22 @@ function assignedName(ticket: Ticket): string {
   return assigned?.name ?? '—';
 }
 
-export function DashboardPage() {
+interface DashboardPageProps {
+  dateFrom: string | null;
+  dateTo: string | null;
+}
+
+export function DashboardPage({ dateFrom, dateTo }: DashboardPageProps) {
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
-  const { data: summary, isLoading: summaryLoading, isError: summaryError } = useDashboardSummary();
-  const { data: tickets, isLoading: ticketsLoading, isError: ticketsError } = useTickets(statusFilter);
+
+  const isDateRangeInvalid = dateFrom && dateTo && dateFrom > dateTo;
+
+  const range: DateRange = {};
+  if (dateFrom) range.dateFrom = dateFrom;
+  if (dateTo) range.dateTo = dateTo;
+
+  const { data: summary, isLoading: summaryLoading, isError: summaryError } = useDashboardSummary(range, { enabled: !isDateRangeInvalid });
+  const { data: tickets, isLoading: ticketsLoading, isError: ticketsError } = useTickets(statusFilter, range, { enabled: !isDateRangeInvalid });
 
   return (
     <section className="dashboard-page">
@@ -55,7 +67,13 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      <TeamBreakdown />
+      {isDateRangeInvalid && (
+        <p className="status-line" data-state="error">
+          Date From must be on or before Date To.
+        </p>
+      )}
+
+      <TeamBreakdown dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
 
       <div className="dashboard-tickets-header">
         <h2>Tickets</h2>

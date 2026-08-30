@@ -1,4 +1,4 @@
-import { apiRequest } from '@/shared/api/http-client';
+import { apiRequest, buildQuery } from '@/shared/api/http-client';
 
 export interface DashboardSummary {
   total: number;
@@ -7,6 +7,11 @@ export interface DashboardSummary {
   pending: number;
   solved: number;
   closed: number;
+}
+
+export interface DateRange extends Record<string, string | undefined> {
+  dateFrom?: string;
+  dateTo?: string;
 }
 
 export interface TeamMember {
@@ -26,6 +31,7 @@ export interface Ticket {
   status?: TicketStatus | null;
   is_deleted?: boolean | null;
   team?: TeamMember[];
+  date_creation?: string | null;
 }
 
 /** Mirrors DashBoard/Models/Glpi/TicketsStatus.cs. */
@@ -49,8 +55,8 @@ export interface UserTicketSummary {
   other: number;
 }
 
-export const getSummary = () => apiRequest<DashboardSummary>('/total');
-export const getTickets = () => apiRequest<Ticket[]>('/tickets');
-export const getTicketsByStatus = (statusId: number) => apiRequest<Ticket[]>(`/tickets/status/${statusId}`);
-export const getUserSummaries = () => apiRequest<UserTicketSummary[]>('/tickets/users/totaldetails');
+export const getSummary = (range: DateRange = {}) => apiRequest<DashboardSummary>(`/total${buildQuery(range)}`);
+export const getTickets = (range: DateRange = {}) => apiRequest<Ticket[]>(`/tickets${buildQuery(range)}`);
+export const getTicketsByStatus = (statusId: number, range: DateRange = {}) => apiRequest<Ticket[]>(`/tickets/status/${statusId}${buildQuery(range)}`);
+export const getUserSummaries = (range: DateRange = {}) => apiRequest<UserTicketSummary[]>(`/tickets/users/totaldetails${buildQuery(range)}`);
 export const syncTickets = () => apiRequest<{ message: string }>('/sync', { method: 'POST' });

@@ -72,7 +72,8 @@ button, input, select, textarea {
 
 /* ---- Inputs ---- */
 
-.select {
+.select,
+.input {
   font-size: var(--text-sm);
   color: var(--color-text);
   background: var(--color-surface);
@@ -82,7 +83,8 @@ button, input, select, textarea {
   padding-inline: var(--space-3);
 }
 
-.select:focus {
+.select:focus,
+.input:focus {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: var(--focus-ring);

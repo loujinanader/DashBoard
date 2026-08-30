@@ -10,6 +10,8 @@ namespace DashBoard.Models.Glpi
         [JsonPropertyName("is_deleted")]
         public bool? is_delete { get; set; }
         public List<TeamMember>? Team { get; set; }
+        [JsonPropertyName("date_creation")]
+        public DateTime? DateCreation { get; set; }
 
     }
 }

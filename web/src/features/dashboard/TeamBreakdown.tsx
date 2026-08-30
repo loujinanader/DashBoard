@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useUserSummaries } from './api/dashboard-queries';
-import type { UserTicketSummary } from './api/dashboard-api';
+import type { DateRange, UserTicketSummary } from './api/dashboard-api';
 import './team-breakdown.css';
 
 interface Segment {
@@ -35,8 +35,18 @@ function personLabel(person: UserTicketSummary): string {
  * hatch, same as the ticket table below it. */
 const CHART_LIMIT = 10;
 
-export function TeamBreakdown() {
-  const { data, isLoading, isError } = useUserSummaries();
+interface TeamBreakdownProps {
+  dateFrom?: string | null;
+  dateTo?: string | null;
+  enabled?: boolean;
+}
+
+export function TeamBreakdown({ dateFrom, dateTo, enabled = true }: TeamBreakdownProps = {}) {
+  const range: DateRange = {};
+  if (dateFrom) range.dateFrom = dateFrom;
+  if (dateTo) range.dateTo = dateTo;
+
+  const { data, isLoading, isError } = useUserSummaries(range, { enabled });
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -13,8 +13,14 @@ namespace DashBoard.Repository
             _context = context;
             _set = _context.Set<TicketEntity>();
         }
-        public async Task<List<TicketEntity>> GetAllAsync()
-            => await _context.Tickets.Where(t => !t.IsDeleted).ToListAsync();
+        private static IQueryable<TicketEntity> WithDateRange(IQueryable<TicketEntity> query, DateTime? from, DateTime? to)
+        {
+            if (from.HasValue) query = query.Where(t => t.CreatedAt >= from.Value.Date);
+            if (to.HasValue) query = query.Where(t => t.CreatedAt < to.Value.Date.AddDays(1));
+            return query;
+        }
+        public async Task<List<TicketEntity>> GetAllAsync(DateTime? from = null, DateTime? to = null)
+            => await WithDateRange(_context.Tickets.Where(t => !t.IsDeleted), from, to).ToListAsync();
         public async Task<TicketEntity?> GetByIdAsync(int id)
            => await _context.Tickets.FirstOrDefaultAsync(t => t.Id == id && !t.IsDeleted);
         public async Task UpsertAsync(TicketEntity ticket)
@@ -31,26 +37,27 @@ namespace DashBoard.Repository
                 existingTicket.IsDeleted = ticket.IsDeleted;
                 existingTicket.AssignedUserId = ticket.AssignedUserId;
                 existingTicket.AssignedUserName = ticket.AssignedUserName;
+                existingTicket.CreatedAt = ticket.CreatedAt;
             }
         }
         public async Task SaveChangesAsync()
                => await _context.SaveChangesAsync();
-        public async Task<int> GetTotalAsync()
-               => await _context.Tickets.CountAsync(t => !t.IsDeleted);
-        public async Task<int> GetCountByStatusAsync(string statusName)
-               => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.StatusName == statusName);
+        public async Task<int> GetTotalAsync(DateTime? from = null, DateTime? to = null)
+               => await WithDateRange(_context.Tickets.Where(t => !t.IsDeleted), from, to).CountAsync();
+        public async Task<int> GetCountByStatusAsync(string statusName, DateTime? from = null, DateTime? to = null)
+               => await WithDateRange(_context.Tickets.Where(t => !t.IsDeleted && t.StatusName == statusName), from, to).CountAsync();
         public async Task<int> GetCountByUserIdAsync(int userId)
                => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.AssignedUserId == userId);
         public async Task<int> GetCountByStatusAndUserIdAsync(string statusName, int userId)
                 => await _context.Tickets.CountAsync(t => !t.IsDeleted && t.AssignedUserId == userId && t.StatusName == statusName);
         public async Task<List<TicketEntity>> GetByUserIdAsync(int userId)
             => await _context.Tickets.Where(t => !t.IsDeleted && t.AssignedUserId == userId).ToListAsync();
-        public async Task<List<TicketEntity>> GetByStatusIdAsync(int statusId)
-            => await _context.Tickets.Where(t => !t.IsDeleted && t.StatusId == statusId).ToListAsync();
-        public async Task<List<UserTicketSummary>> GetSummaryByUserAsync()
+        public async Task<List<TicketEntity>> GetByStatusIdAsync(int statusId, DateTime? from = null, DateTime? to = null)
+            => await WithDateRange(_context.Tickets.Where(t => !t.IsDeleted && t.StatusId == statusId), from, to).ToListAsync();
+        public async Task<List<UserTicketSummary>> GetSummaryByUserAsync(DateTime? from = null, DateTime? to = null)
         {
-            var rows = await _context.Tickets
-                .Where(t => !t.IsDeleted && t.AssignedUserId != null)
+            var query = WithDateRange(_context.Tickets.Where(t => !t.IsDeleted && t.AssignedUserId != null), from, to);
+            var rows = await query
                 .GroupBy(t => new { t.AssignedUserId, t.AssignedUserName })
                 .Select(g => new UserTicketSummary
                 {
