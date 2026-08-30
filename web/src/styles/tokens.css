@@ -101,6 +101,14 @@
   --chart-cat-7: #8548a8;
   --chart-cat-8: #b13868;
 
+  /* Ticket type x closed-state: one hue per type (request/incident), with
+     the closed variant darker — same "darker = more resolved" convention
+     as the status ramp above, just applied per-type instead of per-stage. */
+  --type-request-open: #5b9bd5;
+  --type-request-closed: #1f4e86;
+  --type-incident-open: #e0813f;
+  --type-incident-closed: #a4491a;
+
   font-family: var(--font-sans);
   background: var(--color-bg);
   color: var(--color-text);
@@ -153,6 +161,11 @@
     --chart-cat-7: #b47ed6;
     --chart-cat-8: #d888aa;
 
+    --type-request-open: #8fc0f0;
+    --type-request-closed: #4a83c7;
+    --type-incident-open: #f0a868;
+    --type-incident-closed: #d17a3a;
+
     --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
     --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.55);
   }
@@ -199,6 +212,11 @@
   --chart-cat-7: #b47ed6;
   --chart-cat-8: #d888aa;
 
+  --type-request-open: #8fc0f0;
+  --type-request-closed: #4a83c7;
+  --type-incident-open: #f0a868;
+  --type-incident-closed: #d17a3a;
+
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
   --shadow-md: 0 6px 24px rgba(0, 0, 0, 0.55);
 }
@@ -243,6 +261,11 @@
   --chart-cat-6: #5c5cc4;
   --chart-cat-7: #8548a8;
   --chart-cat-8: #b13868;
+
+  --type-request-open: #5b9bd5;
+  --type-request-closed: #1f4e86;
+  --type-incident-open: #e0813f;
+  --type-incident-closed: #a4491a;
 
   --shadow-sm: 0 1px 2px rgba(23, 27, 36, 0.07);
   --shadow-md: 0 6px 20px rgba(23, 27, 36, 0.10);

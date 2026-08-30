@@ -47,7 +47,8 @@ namespace DashBoard.Service.DashboardServices
                 {
                     Id = t.LocationId,
                     Name = t.LocationName
-                }
+                },
+                Type = t.Type
             }).ToList();
         }
         public async Task<Ticket?> GetTicketByIdAsync(int id)
@@ -83,7 +84,8 @@ namespace DashBoard.Service.DashboardServices
                 {
                     Id = ticket.LocationId,
                     Name = ticket.LocationName
-                }
+                },
+                Type = ticket.Type
             };
         }
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(int userId)
@@ -114,7 +116,8 @@ namespace DashBoard.Service.DashboardServices
                 {
                     Id = t.LocationId,
                     Name = t.LocationName
-                }
+                },
+                Type = t.Type
             }).ToList();
         }
 
@@ -148,7 +151,8 @@ namespace DashBoard.Service.DashboardServices
                 {
                     Id = t.LocationId,
                     Name = t.LocationName
-                }
+                },
+                Type = t.Type
             }).ToList();
         }
         public async Task<DashboardSummary> GetTotalAsync(DateTime? from = null, DateTime? to = null) => await CreateSummary(from, to);
@@ -190,6 +194,7 @@ namespace DashBoard.Service.DashboardServices
         }
         public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByUserAsync(from, to);
         public async Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByLocationAsync(from, to);
+        public async Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByTypeAsync(from, to);
         public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();
     }
 }

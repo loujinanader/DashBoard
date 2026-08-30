@@ -16,5 +16,6 @@ namespace DashBoard.Repository
         public Task<List<TicketEntity>> GetByStatusIdAsync(int statusId, DateTime? from = null, DateTime? to = null);
         public Task<List<UserTicketSummary>> GetSummaryByUserAsync(DateTime? from = null, DateTime? to = null);
         public Task<List<LocationTicketSummary>> GetSummaryByLocationAsync(DateTime? from = null, DateTime? to = null);
+        public Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null);
     }
 }

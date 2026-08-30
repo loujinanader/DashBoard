@@ -13,6 +13,7 @@ namespace DashBoard.Service.DashboardServices
         public Task<DashboardSummary> GetTotalByUserIdAsync(int userId);
         public Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null);
         public Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null);
+        public Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null);
         public Task SyncTicketsAsync();
     }
 }

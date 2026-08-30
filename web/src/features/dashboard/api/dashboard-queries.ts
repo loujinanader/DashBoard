@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { DateRange, getLocationSummaries, getSummary, getTickets, getTicketsByStatus, getUserSummaries, syncTickets } from './dashboard-api';
+import { DateRange, getLocationSummaries, getSummary, getTickets, getTicketsByStatus, getTypeSummary, getUserSummaries, syncTickets } from './dashboard-api';
 
 const summaryKey = (range: DateRange) => ['dashboard', 'summary', range] as const;
 const ticketsKey = (statusId: number | null, range: DateRange) => ['dashboard', 'tickets', statusId, range] as const;
 const userSummariesKey = (range: DateRange) => ['dashboard', 'userSummaries', range] as const;
 const locationSummariesKey = (range: DateRange) => ['dashboard', 'locationSummaries', range] as const;
+const typeSummaryKey = (range: DateRange) => ['dashboard', 'typeSummary', range] as const;
 
 export function useDashboardSummary(range: DateRange = {}, { enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({ queryKey: summaryKey(range), queryFn: () => getSummary(range), refetchInterval: 60_000, enabled });
@@ -16,6 +17,10 @@ export function useUserSummaries(range: DateRange = {}, { enabled = true }: { en
 
 export function useLocationSummaries(range: DateRange = {}, { enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({ queryKey: locationSummariesKey(range), queryFn: () => getLocationSummaries(range), refetchInterval: 60_000, enabled });
+}
+
+export function useTypeSummary(range: DateRange = {}, { enabled = true }: { enabled?: boolean } = {}) {
+  return useQuery({ queryKey: typeSummaryKey(range), queryFn: () => getTypeSummary(range), refetchInterval: 60_000, enabled });
 }
 
 export function useTickets(statusId: number | null, range: DateRange = {}, { enabled = true }: { enabled?: boolean } = {}) {

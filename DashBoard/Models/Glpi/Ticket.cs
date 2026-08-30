@@ -13,6 +13,7 @@ namespace DashBoard.Models.Glpi
         [JsonPropertyName("date_creation")]
         public DateTime DateCreation { get; set; }
         public Location Location { get; set; }
+        public int Type { get; set; }
 
     }
 }

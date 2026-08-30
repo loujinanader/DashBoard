@@ -1,6 +1,7 @@
 ﻿using DashBoard.Data;
 using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
+using DashBoard.Models.Glpi;
 using Microsoft.EntityFrameworkCore;
 namespace DashBoard.Repository
 {
@@ -40,6 +41,7 @@ namespace DashBoard.Repository
                 existingTicket.CreatedAt = ticket.CreatedAt;
                 existingTicket.LocationId = ticket.LocationId;
                 existingTicket.LocationName = ticket.LocationName;
+                existingTicket.Type = ticket.Type;
             }
         }
         public async Task SaveChangesAsync()
@@ -88,6 +90,24 @@ namespace DashBoard.Repository
                 })
                 .ToListAsync();
             return rows.OrderByDescending(r => r.Total).ToList();
+        }
+        public async Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null)
+        {
+            var query = WithDateRange(_context.Tickets.Where(t => !t.IsDeleted), from, to);
+            var rows = await query
+                .GroupBy(t => new { t.Type, IsClosed = t.StatusName == "Closed" })
+                .Select(g => new { g.Key.Type, g.Key.IsClosed, Count = g.Count() })
+                .ToListAsync();
+
+            int CountFor(int type, bool closed) => rows.FirstOrDefault(r => r.Type == type && r.IsClosed == closed)?.Count ?? 0;
+
+            return new TicketTypeSummary
+            {
+                RequestClosed = CountFor(TicketTypes.Request, true),
+                RequestOpen = CountFor(TicketTypes.Request, false),
+                IncidentClosed = CountFor(TicketTypes.Incident, true),
+                IncidentOpen = CountFor(TicketTypes.Incident, false)
+            };
         }
     }
 }

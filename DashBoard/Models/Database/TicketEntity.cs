@@ -12,5 +12,6 @@
         public DateTime CreatedAt { get; set; }
         public int LocationId { get; set; }
         public string LocationName { get; set; }
+        public int Type { get; set; }
     }
 }
