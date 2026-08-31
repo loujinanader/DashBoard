@@ -1,7 +1,7 @@
 using DashBoard.Brokers.ApiBroker.Glpi;
+using DashBoard.Brokers.Repository;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
-using DashBoard.Repository;
 namespace DashBoard.Service.GlpiServices
 {
     public class GLPIService : IGLPIService

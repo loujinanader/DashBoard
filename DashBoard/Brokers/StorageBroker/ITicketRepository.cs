@@ -1,6 +1,6 @@
 ﻿using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
-namespace DashBoard.Repository
+namespace DashBoard.Brokers.Repository
 {
     public interface ITicketRepository
     {

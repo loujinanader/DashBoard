@@ -1,7 +1,7 @@
 using DashBoard.Brokers.ApiBroker.Glpi;
+using DashBoard.Brokers.Repository;
 using DashBoard.Data;
 using DashBoard.Infrastructure;
-using DashBoard.Repository;
 using DashBoard.Service.BackgroundServices;
 using DashBoard.Service.DashboardServices;
 using DashBoard.Service.GlpiServices;

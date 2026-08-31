@@ -1,7 +1,7 @@
-﻿using DashBoard.Models.Dashboard;
+﻿using DashBoard.Brokers.Repository;
+using DashBoard.Models.Dashboard;
 using DashBoard.Models.Dashboard.DashBoard.Models;
 using DashBoard.Models.Glpi;
-using DashBoard.Repository;
 using DashBoard.Service.GlpiServices;
 namespace DashBoard.Service.DashboardServices
 {

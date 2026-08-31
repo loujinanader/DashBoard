@@ -3,7 +3,7 @@ using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
 using Microsoft.EntityFrameworkCore;
-namespace DashBoard.Repository
+namespace DashBoard.Brokers.Repository
 {
     public class TicketRepository : ITicketRepository
     {
