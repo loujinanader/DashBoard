@@ -1,4 +1,4 @@
-using DashBoard.ApiBroker.Glpi;
+using DashBoard.Brokers.ApiBroker.Glpi;
 using DashBoard.Data;
 using DashBoard.Infrastructure;
 using DashBoard.Repository;
