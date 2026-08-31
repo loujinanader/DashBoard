@@ -1,5 +1,5 @@
 ﻿using DashBoard.Models.Glpi;
-namespace DashBoard.Broker.Glpi
+namespace DashBoard.ApiBroker.Glpi
 {
     public interface IGLPIBroker
     {
