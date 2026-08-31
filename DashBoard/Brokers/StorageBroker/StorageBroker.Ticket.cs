@@ -3,7 +3,7 @@ using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
 using Microsoft.EntityFrameworkCore;
-namespace DashBoard.Brokers.Repository
+namespace DashBoard.Brokers.StorageBroker
 {
     public partial class StorageBroker : IStorageBroker
     {

@@ -1,5 +1,5 @@
 using DashBoard.Brokers.ApiBroker.Glpi;
-using DashBoard.Brokers.Repository;
+using DashBoard.Brokers.StorageBroker;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
 namespace DashBoard.Service.GlpiServices

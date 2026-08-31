@@ -1,4 +1,4 @@
-﻿using DashBoard.Brokers.Repository;
+﻿using DashBoard.Brokers.StorageBroker;
 using DashBoard.Models.Dashboard;
 using DashBoard.Models.Dashboard.DashBoard.Models;
 using DashBoard.Models.Glpi;
