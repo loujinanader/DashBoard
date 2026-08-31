@@ -5,11 +5,11 @@ using DashBoard.Models.Glpi;
 using Microsoft.EntityFrameworkCore;
 namespace DashBoard.Brokers.Repository
 {
-    public class TicketRepository : ITicketRepository
+    public partial class StorageBroker : IStorageBroker
     {
         private readonly DashboardDbContext _context;
         private readonly DbSet<TicketEntity> _set;
-        public TicketRepository(DashboardDbContext context)
+        public StorageBroker(DashboardDbContext context)
         {
             _context = context;
             _set = _context.Set<TicketEntity>();

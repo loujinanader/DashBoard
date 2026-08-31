@@ -18,7 +18,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddHttpClient<IGLPIBroker, GLPIBroker>();
 builder.Services.AddScoped<IGLPIService, GLPIService>();
 builder.Services.AddScoped<IDashboardServices, DashboardService>();
-builder.Services.AddScoped<ITicketRepository, TicketRepository>();
+builder.Services.AddScoped<IStorageBroker, StorageBroker>();
 builder.Services.AddHostedService<TicketSyncBackgroundService>();
 
 // Force Microsoft.Data.SqlClient's native SNI DLL to load now, while
