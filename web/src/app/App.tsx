@@ -21,10 +21,26 @@ function MoonIcon() {
   );
 }
 
+function toDateInputValue(d: Date): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function currentMonthRange(): { from: string; to: string } {
+  const now = new Date();
+  const from = new Date(now.getFullYear(), now.getMonth(), 1);
+  const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return { from: toDateInputValue(from), to: toDateInputValue(to) };
+}
+
 export default function App() {
   const { effectiveTheme, toggle } = useTheme();
   const sync = useSyncTickets();
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [dateFrom, setDateFrom] = useState<string | null>(() => currentMonthRange().from);
+  const [dateTo, setDateTo] = useState<string | null>(() => currentMonthRange().to);
 
   const handleSync = () => {
     setSyncMessage(null);
@@ -41,6 +57,20 @@ export default function App() {
           <span className="app-brand">IT KPI Dashboard</span>
         </div>
         <div className="app-topbar-end">
+          <input
+            type="date"
+            className="input"
+            value={dateFrom ?? ''}
+            onChange={(e) => setDateFrom(e.target.value || null)}
+            aria-label="Date from"
+          />
+          <input
+            type="date"
+            className="input"
+            value={dateTo ?? ''}
+            onChange={(e) => setDateTo(e.target.value || null)}
+            aria-label="Date to"
+          />
           {syncMessage && (
             <span className="status-line" data-state={sync.isError ? 'error' : 'ok'}>
               {syncMessage}
@@ -61,7 +91,7 @@ export default function App() {
         </div>
       </header>
       <main className="app-main">
-        <DashboardPage />
+        <DashboardPage dateFrom={dateFrom} dateTo={dateTo} />
       </main>
     </div>
   );

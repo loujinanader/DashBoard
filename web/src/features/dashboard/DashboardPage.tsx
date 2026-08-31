@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDashboardSummary, useTickets } from './api/dashboard-queries';
-import { TICKET_STATUSES, type Ticket } from './api/dashboard-api';
+import { TICKET_STATUSES, type DateRange, type Ticket } from './api/dashboard-api';
 import { TeamBreakdown } from './TeamBreakdown';
+import { StatusPieCard } from './StatusPieCard';
+import { LocationPieCard } from './LocationPieCard';
+import { TypePieCard } from './TypePieCard';
 import './dashboard-page.css';
 
 function StatCard({ label, value, tone }: { label: string; value: number | string; tone?: 'warning' }) {
@@ -29,10 +32,55 @@ function assignedName(ticket: Ticket): string {
   return assigned?.name ?? '—';
 }
 
-export function DashboardPage() {
+function matchesSearch(ticket: Ticket, query: string): boolean {
+  const haystack = [
+    String(ticket.id),
+    ticket.name ?? '',
+    ticket.status?.name ?? '',
+    assignedName(ticket),
+    ticket.location.name,
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(query);
+}
+
+const PAGE_SIZE = 10;
+
+interface DashboardPageProps {
+  dateFrom: string | null;
+  dateTo: string | null;
+}
+
+export function DashboardPage({ dateFrom, dateTo }: DashboardPageProps) {
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
-  const { data: summary, isLoading: summaryLoading, isError: summaryError } = useDashboardSummary();
-  const { data: tickets, isLoading: ticketsLoading, isError: ticketsError } = useTickets(statusFilter);
+  const [searchText, setSearchText] = useState('');
+  const [page, setPage] = useState(1);
+
+  const isDateRangeInvalid = dateFrom && dateTo && dateFrom > dateTo;
+
+  const range: DateRange = {};
+  if (dateFrom) range.dateFrom = dateFrom;
+  if (dateTo) range.dateTo = dateTo;
+
+  const { data: summary, isLoading: summaryLoading, isError: summaryError } = useDashboardSummary(range, { enabled: !isDateRangeInvalid });
+  const { data: tickets, isLoading: ticketsLoading, isError: ticketsError } = useTickets(statusFilter, range, { enabled: !isDateRangeInvalid });
+
+  const filteredTickets = useMemo(() => {
+    if (!tickets) return [];
+    const query = searchText.trim().toLowerCase();
+    if (!query) return tickets;
+    return tickets.filter((t) => matchesSearch(t, query));
+  }, [tickets, searchText]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchText, statusFilter, dateFrom, dateTo]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredTickets.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pagedTickets = filteredTickets.slice(pageStart, pageStart + PAGE_SIZE);
 
   return (
     <section className="dashboard-page">
@@ -55,20 +103,42 @@ export function DashboardPage() {
         </div>
       ) : null}
 
-      <TeamBreakdown />
+      {isDateRangeInvalid && (
+        <p className="status-line" data-state="error">
+          Date From must be on or before Date To.
+        </p>
+      )}
+
+      <div className="dashboard-pie-grid">
+        <StatusPieCard summary={summary} isLoading={summaryLoading} isError={summaryError} />
+        <LocationPieCard dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
+        <TypePieCard dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
+      </div>
+
+      <TeamBreakdown dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
 
       <div className="dashboard-tickets-header">
         <h2>Tickets</h2>
-        <select
-          className="select"
-          value={statusFilter ?? ''}
-          onChange={(e) => setStatusFilter(e.target.value === '' ? null : Number(e.target.value))}
-        >
-          <option value="">All statuses</option>
-          {TICKET_STATUSES.map((s) => (
-            <option key={s.id} value={s.id}>{s.label}</option>
-          ))}
-        </select>
+        <div className="dashboard-tickets-controls">
+          <input
+            type="search"
+            className="input"
+            placeholder="Search tickets…"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            aria-label="Search tickets"
+          />
+          <select
+            className="select"
+            value={statusFilter ?? ''}
+            onChange={(e) => setStatusFilter(e.target.value === '' ? null : Number(e.target.value))}
+          >
+            <option value="">All statuses</option>
+            {TICKET_STATUSES.map((s) => (
+              <option key={s.id} value={s.id}>{s.label}</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {ticketsError && (
@@ -79,35 +149,66 @@ export function DashboardPage() {
         <p className="status-line" data-state="checking">Loading tickets…</p>
       ) : !tickets || tickets.length === 0 ? (
         <p className="dashboard-empty">No tickets to show.</p>
+      ) : filteredTickets.length === 0 ? (
+        <p className="dashboard-empty">No tickets match "{searchText}".</p>
       ) : (
-        <div className="dashboard-table-scroll">
-          <table className="table">
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Status</th>
-                <th>Assigned to</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tickets.map((ticket) => (
-                <tr key={ticket.id}>
-                  <td className="data-mono">{ticket.id}</td>
-                  <td>{ticket.name ?? '—'}</td>
-                  <td>
-                    {ticket.status ? (
-                      <span className={`pill pill-${statusPillTone(ticket.status.id)}`}>{ticket.status.name}</span>
-                    ) : (
-                      '—'
-                    )}
-                  </td>
-                  <td>{assignedName(ticket)}</td>
+        <>
+          <div className="dashboard-table-scroll">
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Assigned to</th>
+                  <th>Location</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {pagedTickets.map((ticket) => (
+                  <tr key={ticket.id}>
+                    <td className="data-mono">{ticket.id}</td>
+                    <td>{ticket.name ?? '—'}</td>
+                    <td>
+                      {ticket.status ? (
+                        <span className={`pill pill-${statusPillTone(ticket.status.id)}`}>{ticket.status.name}</span>
+                      ) : (
+                        '—'
+                      )}
+                    </td>
+                    <td>{assignedName(ticket)}</td>
+                    <td>{ticket.location.name}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="dashboard-pagination">
+            <span className="dashboard-pagination-summary">
+              Showing {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filteredTickets.length)} of {filteredTickets.length}
+            </span>
+            <div className="dashboard-pagination-controls">
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage <= 1}
+              >
+                Previous
+              </button>
+              <span className="dashboard-pagination-page">Page {currentPage} of {totalPages}</span>
+              <button
+                type="button"
+                className="btn btn-ghost btn-sm"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={currentPage >= totalPages}
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </>
       )}
     </section>
   );
