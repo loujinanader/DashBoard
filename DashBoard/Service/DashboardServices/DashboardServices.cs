@@ -1,24 +1,24 @@
-﻿using DashBoard.Models.Dashboard;
+﻿using DashBoard.Brokers.StorageBroker;
+using DashBoard.Models.Dashboard;
 using DashBoard.Models.Dashboard.DashBoard.Models;
 using DashBoard.Models.Glpi;
-using DashBoard.Repository;
 using DashBoard.Service.GlpiServices;
 namespace DashBoard.Service.DashboardServices
 {
     public class DashboardService : IDashboardServices
     {
         private readonly IGLPIService _glpiService;
-        private readonly ITicketRepository _ticketRepository;
+        private readonly IStorageBroker _storageBroker;
 
-        public DashboardService(IGLPIService glpiService, ITicketRepository ticketRepository)
+        public DashboardService(IGLPIService glpiService, IStorageBroker storageBroker)
         {
             _glpiService = glpiService;
-            _ticketRepository = ticketRepository;
+            _storageBroker = storageBroker;
         }
 
         public async Task<List<Ticket>> GetTicketsAsync(DateTime? from = null, DateTime? to = null)
         {
-            var tickets = await _ticketRepository.GetAllAsync(from, to);
+            var tickets = await _storageBroker.GetAllAsync(from, to);
 
             return tickets.Select(t => new Ticket
             {
@@ -53,7 +53,7 @@ namespace DashBoard.Service.DashboardServices
         }
         public async Task<Ticket?> GetTicketByIdAsync(int id)
         {
-            var ticket = await _ticketRepository.GetByIdAsync(id);
+            var ticket = await _storageBroker.GetByIdAsync(id);
             if (ticket == null)
                 return null;
 
@@ -90,7 +90,7 @@ namespace DashBoard.Service.DashboardServices
         }
         public async Task<List<Ticket>> GetTicketsByUserIdAsync(int userId)
         {
-            var tickets = await _ticketRepository.GetByUserIdAsync(userId);
+            var tickets = await _storageBroker.GetByUserIdAsync(userId);
             return tickets.Select(t => new Ticket
             {
                 Id = t.Id,
@@ -123,7 +123,7 @@ namespace DashBoard.Service.DashboardServices
 
         public async Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId, DateTime? from = null, DateTime? to = null)
         {
-            var tickets = await _ticketRepository.GetByStatusIdAsync(statusId, from, to);
+            var tickets = await _storageBroker.GetByStatusIdAsync(statusId, from, to);
             return tickets.Select(t => new Ticket
             {
                 Id = t.Id,
@@ -158,12 +158,12 @@ namespace DashBoard.Service.DashboardServices
         public async Task<DashboardSummary> GetTotalAsync(DateTime? from = null, DateTime? to = null) => await CreateSummary(from, to);
         public async Task<DashboardSummary> GetTotalByUserIdAsync(int userId)
         {
-            var total = await _ticketRepository.GetCountByUserIdAsync(userId);
-            var newTickets = await _ticketRepository.GetCountByStatusAndUserIdAsync("New", userId);
-            var processing = await _ticketRepository.GetCountByStatusAndUserIdAsync("Processing", userId);
-            var pending = await _ticketRepository.GetCountByStatusAndUserIdAsync("Pending", userId);
-            var solved = await _ticketRepository.GetCountByStatusAndUserIdAsync("Solved", userId);
-            var closed = await _ticketRepository.GetCountByStatusAndUserIdAsync("Closed", userId);
+            var total = await _storageBroker.GetCountByUserIdAsync(userId);
+            var newTickets = await _storageBroker.GetCountByStatusAndUserIdAsync("New", userId);
+            var processing = await _storageBroker.GetCountByStatusAndUserIdAsync("Processing", userId);
+            var pending = await _storageBroker.GetCountByStatusAndUserIdAsync("Pending", userId);
+            var solved = await _storageBroker.GetCountByStatusAndUserIdAsync("Solved", userId);
+            var closed = await _storageBroker.GetCountByStatusAndUserIdAsync("Closed", userId);
             return new DashboardSummary
             {
                 Total = total,
@@ -176,12 +176,12 @@ namespace DashBoard.Service.DashboardServices
         }
         private async Task<DashboardSummary> CreateSummary(DateTime? from = null, DateTime? to = null)
         {
-            var total = await _ticketRepository.GetTotalAsync(from, to);
-            var newTickets = await _ticketRepository.GetCountByStatusAsync("New", from, to);
-            var processing = await _ticketRepository.GetCountByStatusAsync("Processing", from, to);
-            var pending = await _ticketRepository.GetCountByStatusAsync("Pending", from, to);
-            var solved = await _ticketRepository.GetCountByStatusAsync("Solved", from, to);
-            var closed = await _ticketRepository.GetCountByStatusAsync("Closed", from, to);
+            var total = await _storageBroker.GetTotalAsync(from, to);
+            var newTickets = await _storageBroker.GetCountByStatusAsync("New", from, to);
+            var processing = await _storageBroker.GetCountByStatusAsync("Processing", from, to);
+            var pending = await _storageBroker.GetCountByStatusAsync("Pending", from, to);
+            var solved = await _storageBroker.GetCountByStatusAsync("Solved", from, to);
+            var closed = await _storageBroker.GetCountByStatusAsync("Closed", from, to);
             return new DashboardSummary
             {
                 Total = total,
@@ -192,9 +192,9 @@ namespace DashBoard.Service.DashboardServices
                 Closed = closed
             };
         }
-        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByUserAsync(from, to);
-        public async Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByLocationAsync(from, to);
-        public async Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null) => await _ticketRepository.GetSummaryByTypeAsync(from, to);
+        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null) => await _storageBroker.GetSummaryByUserAsync(from, to);
+        public async Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null) => await _storageBroker.GetSummaryByLocationAsync(from, to);
+        public async Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null) => await _storageBroker.GetSummaryByTypeAsync(from, to);
         public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();
     }
 }

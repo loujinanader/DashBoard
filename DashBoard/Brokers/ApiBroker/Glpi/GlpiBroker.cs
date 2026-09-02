@@ -1,10 +1,9 @@
-﻿using DashBoard.Brokers.ApiBroker.Glpi;
-using DashBoard.Exceptions;
+﻿using DashBoard.Exceptions;
 using DashBoard.Models.Glpi;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-namespace DashBoard.GlpiApiBroker.Glpi
+namespace DashBoard.Brokers.ApiBroker.Glpi
 {
     public class GLPIBroker : IGLPIBroker
     {

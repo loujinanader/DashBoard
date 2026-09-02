@@ -3,13 +3,13 @@ using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
 using Microsoft.EntityFrameworkCore;
-namespace DashBoard.Repository
+namespace DashBoard.Brokers.StorageBroker
 {
-    public class TicketRepository : ITicketRepository
+    public partial class StorageBroker : IStorageBroker
     {
         private readonly DashboardDbContext _context;
         private readonly DbSet<TicketEntity> _set;
-        public TicketRepository(DashboardDbContext context)
+        public StorageBroker(DashboardDbContext context)
         {
             _context = context;
             _set = _context.Set<TicketEntity>();
