@@ -1,3 +1,5 @@
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using DashBoard.Brokers.ApiBroker.Glpi;
 using DashBoard.Brokers.StorageBroker;
 using DashBoard.Data;
