@@ -1,17 +1,17 @@
-using DashBoard.ApiBroker.Glpi;
+using DashBoard.Brokers.ApiBroker.Glpi;
+using DashBoard.Brokers.StorageBroker;
 using DashBoard.Models.Database;
 using DashBoard.Models.Glpi;
-using DashBoard.Repository;
 namespace DashBoard.Service.GlpiServices
 {
     public class GLPIService : IGLPIService
     {
         private readonly IGLPIBroker _glpiBroker;
-        private readonly ITicketRepository _ticketRepository;
-        public GLPIService(IGLPIBroker glpiBroker, ITicketRepository ticketRepository)
+        private readonly IStorageBroker _storageBroker;
+        public GLPIService(IGLPIBroker glpiBroker, IStorageBroker storageBroker)
         {
             _glpiBroker = glpiBroker;
-            _ticketRepository = ticketRepository;
+            _storageBroker = storageBroker;
         }
         public async Task SyncTicketsAsync()
         {
@@ -33,9 +33,9 @@ namespace DashBoard.Service.GlpiServices
                     LocationName = ticket.Location.Name,
                     Type = ticket.Type
                 };
-                await _ticketRepository.UpsertAsync(entity);
+                await _storageBroker.UpsertAsync(entity);
             }
-            await _ticketRepository.SaveChangesAsync();
+            await _storageBroker.SaveChangesAsync();
         }
         public async Task<List<Ticket>> GetTicketsAsync()
         {

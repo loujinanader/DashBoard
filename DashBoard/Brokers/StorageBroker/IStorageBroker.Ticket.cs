@@ -1,8 +1,8 @@
 ﻿using DashBoard.Models.Dashboard;
 using DashBoard.Models.Database;
-namespace DashBoard.Repository
+namespace DashBoard.Brokers.StorageBroker
 {
-    public interface ITicketRepository
+    public interface IStorageBroker
     {
         public Task<List<TicketEntity>> GetAllAsync(DateTime? from = null, DateTime? to = null);
         public Task<TicketEntity?> GetByIdAsync(int id);
