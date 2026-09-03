@@ -2,7 +2,7 @@
 using DashBoard.Models.Database;
 namespace DashBoard.Brokers.StorageBroker
 {
-    public interface IStorageBroker
+    public partial interface IStorageBroker
     {
         public Task<List<TicketEntity>> GetAllAsync(DateTime? from = null, DateTime? to = null);
         public Task<TicketEntity?> GetByIdAsync(int id);
