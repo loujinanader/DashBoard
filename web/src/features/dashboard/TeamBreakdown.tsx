@@ -14,11 +14,6 @@ function personLabel(person: UserTicketSummary): string {
   return person.userName ?? `User ${person.userId}`;
 }
 
-/** Chart stays readable as a scan of "who's busiest"; the table view (all
- * people, already sorted by total from the API) is the full-data escape
- * hatch, same as the ticket table below it. */
-const CHART_LIMIT = 10;
-
 interface TeamBreakdownProps {
   dateFrom?: string | null;
   dateTo?: string | null;
@@ -33,7 +28,7 @@ export function TeamBreakdown({ dateFrom, dateTo, enabled = true, level, title }
   if (dateTo) range.dateTo = dateTo;
 
   const { data, isLoading, isError } = useUserSummaries(range, { enabled, level });
-  const heading = title ?? (level ? `Tickets by person — ${level} — top ${CHART_LIMIT}` : `Tickets by person — top ${CHART_LIMIT}`);
+  const heading = title ?? 'Tickets by person';
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,7 +43,7 @@ export function TeamBreakdown({ dateFrom, dateTo, enabled = true, level, title }
   return (
     <section className="team-breakdown card">
       <div className="team-breakdown-header">
-        <h2>{level ? heading : `Tickets by person${view === 'chart' && data && data.length > CHART_LIMIT ? ` — top ${CHART_LIMIT}` : ''}`}</h2>
+        <h2>{heading}</h2>
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => setView(view === 'chart' ? 'table' : 'chart')}>
           {view === 'chart' ? 'View as table' : 'View as chart'}
         </button>
@@ -98,9 +93,8 @@ export function TeamBreakdown({ dateFrom, dateTo, enabled = true, level, title }
           </div>
           <div className="team-breakdown-rows" ref={containerRef}>
             {(() => {
-              const topPeople = data.slice(0, CHART_LIMIT);
-              const maxTotal = Math.max(...topPeople.map((p) => p.total));
-              return topPeople.map((person) => {
+              const maxTotal = Math.max(...data.map((p) => p.total));
+              return data.map((person) => {
                 const barWidthPercent = (person.total / maxTotal) * 100;
                 const visibleSegments = SEGMENTS.filter((s) => (person[s.key] as number) > 0);
                 return (
