@@ -23,14 +23,17 @@ interface TeamBreakdownProps {
   dateFrom?: string | null;
   dateTo?: string | null;
   enabled?: boolean;
+  level?: 'L1' | 'L2';
+  title?: string;
 }
 
-export function TeamBreakdown({ dateFrom, dateTo, enabled = true }: TeamBreakdownProps = {}) {
+export function TeamBreakdown({ dateFrom, dateTo, enabled = true, level, title }: TeamBreakdownProps = {}) {
   const range: DateRange = {};
   if (dateFrom) range.dateFrom = dateFrom;
   if (dateTo) range.dateTo = dateTo;
 
-  const { data, isLoading, isError } = useUserSummaries(range, { enabled });
+  const { data, isLoading, isError } = useUserSummaries(range, { enabled, level });
+  const heading = title ?? (level ? `Tickets by person — ${level} — top ${CHART_LIMIT}` : `Tickets by person — top ${CHART_LIMIT}`);
   const [view, setView] = useState<'chart' | 'table'>('chart');
   const [tooltip, setTooltip] = useState<TooltipState | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -45,7 +48,7 @@ export function TeamBreakdown({ dateFrom, dateTo, enabled = true }: TeamBreakdow
   return (
     <section className="team-breakdown card">
       <div className="team-breakdown-header">
-        <h2>Tickets by person{view === 'chart' && data && data.length > CHART_LIMIT ? ` — top ${CHART_LIMIT}` : ''}</h2>
+        <h2>{level ? heading : `Tickets by person${view === 'chart' && data && data.length > CHART_LIMIT ? ` — top ${CHART_LIMIT}` : ''}`}</h2>
         <button type="button" className="btn btn-ghost btn-sm" onClick={() => setView(view === 'chart' ? 'table' : 'chart')}>
           {view === 'chart' ? 'View as table' : 'View as chart'}
         </button>

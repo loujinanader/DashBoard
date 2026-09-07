@@ -83,6 +83,18 @@
   font-variant-numeric: tabular-nums;
 }
 
+.team-breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+@media (max-width: 900px) {
+  .team-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .dashboard-empty {
   color: var(--color-text-muted);
   font-size: var(--text-sm);

@@ -3,7 +3,7 @@ import { DateRange, getLocationSummaries, getSummary, getTickets, getTicketsBySt
 
 const summaryKey = (range: DateRange) => ['dashboard', 'summary', range] as const;
 const ticketsKey = (statusId: number | null, range: DateRange) => ['dashboard', 'tickets', statusId, range] as const;
-const userSummariesKey = (range: DateRange) => ['dashboard', 'userSummaries', range] as const;
+const userSummariesKey = (range: DateRange, level?: string) => ['dashboard', 'userSummaries', range, level] as const;
 const locationSummariesKey = (range: DateRange) => ['dashboard', 'locationSummaries', range] as const;
 const typeSummaryKey = (range: DateRange) => ['dashboard', 'typeSummary', range] as const;
 
@@ -11,8 +11,8 @@ export function useDashboardSummary(range: DateRange = {}, { enabled = true }: {
   return useQuery({ queryKey: summaryKey(range), queryFn: () => getSummary(range), refetchInterval: 60_000, enabled });
 }
 
-export function useUserSummaries(range: DateRange = {}, { enabled = true }: { enabled?: boolean } = {}) {
-  return useQuery({ queryKey: userSummariesKey(range), queryFn: () => getUserSummaries(range), refetchInterval: 60_000, enabled });
+export function useUserSummaries(range: DateRange = {}, { enabled = true, level }: { enabled?: boolean; level?: string } = {}) {
+  return useQuery({ queryKey: userSummariesKey(range, level), queryFn: () => getUserSummaries(range, level), refetchInterval: 60_000, enabled });
 }
 
 export function useLocationSummaries(range: DateRange = {}, { enabled = true }: { enabled?: boolean } = {}) {

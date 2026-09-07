@@ -58,9 +58,11 @@ namespace DashBoard.Brokers.StorageBroker
             => await _context.Tickets.Where(t => !t.IsDeleted && t.AssignedUserId == userId).ToListAsync();
         public async Task<List<TicketEntity>> GetByStatusIdAsync(int statusId, DateTime? from = null, DateTime? to = null)
             => await WithDateRange(_context.Tickets.Where(t => !t.IsDeleted && t.StatusId == statusId), from, to).ToListAsync();
-        public async Task<List<UserTicketSummary>> GetSummaryByUserAsync(DateTime? from = null, DateTime? to = null)
+        public async Task<List<UserTicketSummary>> GetSummaryByUserAsync(DateTime? from = null, DateTime? to = null, IReadOnlyCollection<int>? allowedUserIds = null)
         {
             var query = WithDateRange(_context.Tickets.Where(t => !t.IsDeleted && t.AssignedUserId != null), from, to);
+            if (allowedUserIds != null)
+                query = query.Where(t => allowedUserIds.Contains(t.AssignedUserId!.Value));
             var rows = await query
                 .GroupBy(t => new { t.AssignedUserId, t.AssignedUserName })
                 .Select(g => new UserTicketSummary

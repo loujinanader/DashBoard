@@ -115,7 +115,10 @@ export function DashboardPage({ dateFrom, dateTo }: DashboardPageProps) {
         <TypePieCard dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
       </div>
 
-      <TeamBreakdown dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} />
+      <div className="team-breakdown-grid">
+        <TeamBreakdown dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} level="L1" />
+        <TeamBreakdown dateFrom={dateFrom} dateTo={dateTo} enabled={!isDateRangeInvalid} level="L2" />
+      </div>
 
       <div className="dashboard-tickets-header">
         <h2>Tickets</h2>
