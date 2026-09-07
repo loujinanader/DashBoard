@@ -3,17 +3,20 @@ using DashBoard.Models.Dashboard;
 using DashBoard.Models.Dashboard.DashBoard.Models;
 using DashBoard.Models.Glpi;
 using DashBoard.Service.GlpiServices;
+using Microsoft.Extensions.Configuration;
 namespace DashBoard.Service.DashboardServices
 {
     public class DashboardService : IDashboardServices
     {
         private readonly IGLPIService _glpiService;
         private readonly IStorageBroker _storageBroker;
+        private readonly IConfiguration _configuration;
 
-        public DashboardService(IGLPIService glpiService, IStorageBroker storageBroker)
+        public DashboardService(IGLPIService glpiService, IStorageBroker storageBroker, IConfiguration configuration)
         {
             _glpiService = glpiService;
             _storageBroker = storageBroker;
+            _configuration = configuration;
         }
 
         public async Task<List<Ticket>> GetTicketsAsync(DateTime? from = null, DateTime? to = null)
@@ -192,7 +195,22 @@ namespace DashBoard.Service.DashboardServices
                 Closed = closed
             };
         }
-        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null) => await _storageBroker.GetSummaryByUserAsync(from, to);
+        public async Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null, string? level = null)
+        {
+            var allowed = ResolveAllowedUserIds(level);
+            return await _storageBroker.GetSummaryByUserAsync(from, to, allowed);
+        }
+
+        private IReadOnlyCollection<int>? ResolveAllowedUserIds(string? level)
+        {
+            if (string.IsNullOrWhiteSpace(level)) return null;
+            var key = level.Trim().Equals("L1", StringComparison.OrdinalIgnoreCase) ? "GLPI:L1USERS"
+                : level.Trim().Equals("L2", StringComparison.OrdinalIgnoreCase) ? "GLPI:L2USERS"
+                : null;
+            if (key == null) return null;
+            var ids = _configuration.GetSection(key).Get<int[]>();
+            return ids?.Length > 0 ? ids : null;
+        }
         public async Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null) => await _storageBroker.GetSummaryByLocationAsync(from, to);
         public async Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null) => await _storageBroker.GetSummaryByTypeAsync(from, to);
         public async Task SyncTicketsAsync() => await _glpiService.SyncTicketsAsync();

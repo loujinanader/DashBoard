@@ -77,7 +77,11 @@ export interface TicketTypeSummary {
 export const getSummary = (range: DateRange = {}) => apiRequest<DashboardSummary>(`/total${buildQuery(range)}`);
 export const getTickets = (range: DateRange = {}) => apiRequest<Ticket[]>(`/tickets${buildQuery(range)}`);
 export const getTicketsByStatus = (statusId: number, range: DateRange = {}) => apiRequest<Ticket[]>(`/tickets/status/${statusId}${buildQuery(range)}`);
-export const getUserSummaries = (range: DateRange = {}) => apiRequest<UserTicketSummary[]>(`/tickets/users/totaldetails${buildQuery(range)}`);
+export const getUserSummaries = (range: DateRange = {}, level?: string) => {
+  const params: Record<string, string | undefined> = { ...range };
+  if (level) params.level = level;
+  return apiRequest<UserTicketSummary[]>(`/tickets/users/totaldetails${buildQuery(params)}`);
+};
 export const getLocationSummaries = (range: DateRange = {}) => apiRequest<LocationTicketSummary[]>(`/tickets/locations/totaldetails${buildQuery(range)}`);
 export const getTypeSummary = (range: DateRange = {}) => apiRequest<TicketTypeSummary>(`/tickets/types/totaldetails${buildQuery(range)}`);
 export const syncTickets = () => apiRequest<{ message: string }>('/sync', { method: 'POST' });

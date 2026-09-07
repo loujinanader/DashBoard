@@ -11,7 +11,7 @@ namespace DashBoard.Service.DashboardServices
         public Task<List<Ticket>> GetTicketsByStatusIdAsync(int statusId, DateTime? from = null, DateTime? to = null);
         public Task<DashboardSummary> GetTotalAsync(DateTime? from = null, DateTime? to = null);
         public Task<DashboardSummary> GetTotalByUserIdAsync(int userId);
-        public Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null);
+        public Task<List<UserTicketSummary>> GetSummaryByAllUsersAsync(DateTime? from = null, DateTime? to = null, string? level = null);
         public Task<List<LocationTicketSummary>> GetSummaryByAllLocationsAsync(DateTime? from = null, DateTime? to = null);
         public Task<TicketTypeSummary> GetSummaryByTypeAsync(DateTime? from = null, DateTime? to = null);
         public Task SyncTicketsAsync();
