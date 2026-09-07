@@ -7,6 +7,7 @@ using DashBoard.Infrastructure;
 using DashBoard.Service.BackgroundServices;
 using DashBoard.Service.DashboardServices;
 using DashBoard.Service.GlpiServices;
+using DashBoard.Brokers.ApiBroker.ZKBio;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -19,6 +20,10 @@ builder.Services.AddHttpClient<IGLPIBroker, GLPIBroker>();
 builder.Services.AddScoped<IGLPIService, GLPIService>();
 builder.Services.AddScoped<IDashboardServices, DashboardService>();
 builder.Services.AddScoped<IStorageBroker, StorageBroker>();
+
+builder.Services.AddScoped<IZKBioBroker, ZKBioBroker>();
+
+
 builder.Services.AddHostedService<TicketSyncBackgroundService>();
 
 // Force Microsoft.Data.SqlClient's native SNI DLL to load now, while
